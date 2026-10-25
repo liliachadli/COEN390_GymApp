@@ -1,0 +1,4 @@
+Code for the Android app
+
+-Frontend - ui
+-Database

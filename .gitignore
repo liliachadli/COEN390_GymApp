@@ -1,0 +1,10 @@
+# IDE files
+.idea/
+*.iml
+
+# Gradle build files and directories
+.gradle/
+build/
+**/build/
+**/local.properties
+*.log

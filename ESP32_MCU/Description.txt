@@ -1,0 +1,5 @@
+Code for the ESP32 C3 supermini
+
+-Code for imu range motion
+-Code for heartbeat sensor
+-Bluetooth Communication for hardware -> app
