@@ -22,7 +22,7 @@ RawPacket ble_buildPacket(uint16_t sequence, uint32_t timeMs, const MotionSample
 // BLE-1.6 - print the packet values and raw bytes, so they can be
 // compared with what the phone receives
 void ble_printPacket(const RawPacket &p) {
-  Serial.printf("TX seq=%u t=%lu A=%d,%d,%d G=%d,%d,%d IR=%lu RED=%lu\n",
+  Serial.printf("TX seq=%u t=%lu A=%.3f,%.3f,%.3f G=%.2f,%.2f,%.2f IR=%lu RED=%lu\n",
                 p.sequence, (unsigned long)p.timeMs,
                 p.accel[0], p.accel[1], p.accel[2],
                 p.gyro[0], p.gyro[1], p.gyro[2],

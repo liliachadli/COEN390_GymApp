@@ -23,10 +23,7 @@ bool readRegs(uint8_t reg, uint8_t *buf, uint8_t n) {
 }
 
 bool mpu6050_init() {
-  Serial.begin(115200);
-  delay(1500);
-  Wire.begin(0, 1);
-  Wire.setClock(400000); 
+  // Uses the I2C bus (GPIO4/5) already started in main.cpp, shared with the MAX30102
 
   writeReg(0x6B, 0x00);  // PWR_MGMT_1: wake up
   writeReg(0x19, 9);     // SMPLRT_DIV: 1000 / (1+9) = 100 Hz
@@ -44,12 +41,12 @@ void mpu6050_read(MotionSample &ms) {
     uint8_t b[14];
     uint32_t t = micros();                          // timestamp at read time
     if (readRegs(0x3B, b, 14)) {
-      ms.accel[0] = (int16_t)((b[0]  << 8) | b[1]) / 4096; //ax
-      ms.accel[1] = (int16_t)((b[2]  << 8) | b[3]) / 4096; //ay
-      ms.accel[2] = (int16_t)((b[4]  << 8) | b[5]) / 4096; //az
-      ms.gyro[0] = (int16_t)((b[8]  << 8) | b[9]) / 65.5; //gx
-      ms.gyro[1] = (int16_t)((b[10] << 8) | b[11]) / 65.5; //gy
-      ms.gyro[2] = (int16_t)((b[12] << 8) | b[13])/ 65.5; //gz
+      ms.accel[0] = (int16_t)((b[0]  << 8) | b[1]) / 4096.0f; //ax (g)
+      ms.accel[1] = (int16_t)((b[2]  << 8) | b[3]) / 4096.0f; //ay (g)
+      ms.accel[2] = (int16_t)((b[4]  << 8) | b[5]) / 4096.0f; //az (g)
+      ms.gyro[0] = (int16_t)((b[8]  << 8) | b[9]) / 65.5f; //gx (deg/s)
+      ms.gyro[1] = (int16_t)((b[10] << 8) | b[11]) / 65.5f; //gy (deg/s)
+      ms.gyro[2] = (int16_t)((b[12] << 8) | b[13]) / 65.5f; //gz (deg/s)
     }
   }
 }

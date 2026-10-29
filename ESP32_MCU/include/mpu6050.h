@@ -2,8 +2,8 @@
 #include <Arduino.h>
 
 struct MotionSample {
-  int16_t accel[3];
-  int16_t gyro[3];
+  float accel[3];   // g
+  float gyro[3];    // deg/s
 };
 
 void writeReg(uint8_t reg, uint8_t val);    

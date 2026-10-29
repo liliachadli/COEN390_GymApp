@@ -57,7 +57,7 @@ void loop() {
     lastSendMs = now;
 
     if (ble_isSubscribed()) {
-      MotionSample m;
+      MotionSample m = {};
       mpu6050_read(m);
 
       RawPacket p = ble_buildPacket(sequence, now, m, latestOptical);
