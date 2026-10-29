@@ -3,7 +3,7 @@
 #include "max30102.h"
 #include "max30102_config.h"
 #include "rate_monitor.h"
-#include "mpu6050_placeholder.h"
+#include "mpu6050.h"
 #include "ble_protocol.h"
 #include "ble_packet.h"
 #include "ble_tracker.h"
@@ -31,7 +31,14 @@ void setup() {
     while (true) delay(1000);
   }
   Serial.println("MAX30102 ready: Red + IR, 100 Hz");
-
+  
+  // initialize MPU6050
+  if (!mpu6050_init()) {
+    Serial.println("MPU6050 init failed");
+    while (true) delay(1000);
+  }
+  Serial.println("MPU6050 ready");
+  
   // BLE-1.2 / BLE-1.3: start service and advertising
   ble_begin();
 }
@@ -50,8 +57,8 @@ void loop() {
     lastSendMs = now;
 
     if (ble_isSubscribed()) {
-      MotionSample m;
-      mpu_readPlaceholder(m);
+      MotionSample m = {};
+      mpu6050_read(m);
 
       RawPacket p = ble_buildPacket(sequence, now, m, latestOptical);
       ble_send(p);

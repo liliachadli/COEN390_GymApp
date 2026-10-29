@@ -17,16 +17,16 @@
 // One packet every 20 ms = 50 packets per second
 #define BLE_SEND_INTERVAL_MS 20
 
-// Sprint 1 raw packet, 28 bytes, little-endian
+// Sprint 1 raw packet, 40 bytes, little-endian
 struct __attribute__((packed)) RawPacket {
   uint8_t  version;      // byte 0      protocol version (1)
   uint8_t  type;         // byte 1      0x01 = raw sample
   uint16_t sequence;     // bytes 2-3   +1 every packet, used to find dropped packets
   uint32_t timeMs;       // bytes 4-7   ms since ESP32 boot
-  int16_t  accel[3];     // bytes 8-13  accel X, Y, Z (raw MPU6050 units)
-  int16_t  gyro[3];      // bytes 14-19 gyro X, Y, Z (raw MPU6050 units)
-  uint32_t ir;           // bytes 20-23 MAX30102 IR count
-  uint32_t red;          // bytes 24-27 MAX30102 Red count
+  float    accel[3];     // bytes 8-19  accel X, Y, Z (g)
+  float    gyro[3];      // bytes 20-31 gyro X, Y, Z (deg/s)
+  uint32_t ir;           // bytes 32-35 MAX30102 IR count
+  uint32_t red;          // bytes 36-39 MAX30102 Red count
 };
 
-static_assert(sizeof(RawPacket) == 28, "RawPacket must be 28 bytes");
+static_assert(sizeof(RawPacket) == 40, "RawPacket must be 40 bytes");

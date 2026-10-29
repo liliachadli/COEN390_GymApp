@@ -33,7 +33,7 @@ void ble_begin() {
            (uint8_t)(mac >> 32), (uint8_t)(mac >> 40));
 
   BLEDevice::init(deviceName);
-  BLEDevice::setMTU(185);  // packet is 28 bytes, default BLE limit is 20
+  BLEDevice::setMTU(185);  // packet is 40 bytes, default BLE limit is 20
 
   // BLE-1.2 - GATT service with a data and an info characteristic
   BLEServer *server = BLEDevice::createServer();
@@ -49,7 +49,7 @@ void ble_begin() {
 
   BLECharacteristic *infoChar = service->createCharacteristic(
       BLE_INFO_UUID, BLECharacteristic::PROPERTY_READ);
-  infoChar->setValue("SmartGymTracker;proto=1;pkt=28");
+  infoChar->setValue("SmartGymTracker;proto=1;pkt=40");
 
   service->start();
 
