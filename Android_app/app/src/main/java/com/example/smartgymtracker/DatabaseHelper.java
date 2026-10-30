@@ -68,4 +68,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public String getPasswordHash(String email){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = null;
+        try {
+            cursor = db.rawQuery("SELECT " + Constant.COLUMN_USER_PASSWORD_HASH + " FROM " + Constant.TABLE1_NAME + " WHERE " + Constant.COLUMN_USER_EMAIL + " = ?", new String[]{email});
+            if (cursor.moveToFirst()) {
+                return cursor.getString(0);
+            }
+            return null;
+        } catch (SQLException e) {
+            Log.e(TAG, "getPasswordHash() - exception: " + e.getMessage());
+            return null;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
 }
