@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -40,7 +41,33 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginUser(){
+        String email = emailLoginInput.getText().toString().trim();
+        String password = passwordLoginInput.getText().toString();
 
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Please enter both email and password", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String storedPasswordHash = dbHelper.getPasswordHash(email);
+        if (storedPasswordHash == null) {
+            Toast.makeText(this, "User does not exist", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            boolean isValid = Password.checkPassword(password, storedPasswordHash);
+            if (isValid) {
+                Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
+                Toast.makeText(this, "Incorrect password", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Login error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     //Switch to login page (intent)

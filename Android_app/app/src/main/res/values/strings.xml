@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Smart Gym Tracker</string>
+    <string name="y_acceleration">Y acceleration:</string>
+    <string name="z_acceleration">Z acceleration:</string>
+    <string name="x_acceleration">X acceleration:</string>
+    <string name="x_gyroscope">X gyroscope:</string>
+    <string name="y_gyroscope">Y gyroscope:</string>
+    <string name="z_gyroscope">Z gyroscope:</string>
+    <string name="red_count">Red count:</string>
+    <string name="ir_count">IR count:</string>
 </resources>
