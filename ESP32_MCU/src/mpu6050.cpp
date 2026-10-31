@@ -28,25 +28,24 @@ bool mpu6050_init() {
   writeReg(0x6B, 0x00);  // PWR_MGMT_1: wake up
   writeReg(0x19, 9);     // SMPLRT_DIV: 1000 / (1+9) = 100 Hz
   writeReg(0x1A, 0x03);  // CONFIG: gyro DLPF ~41 Hz
-  writeReg(0x1B, 0x08);  // GYRO_CONFIG: +-500 dps
-  writeReg(0x1C, 0x10);  // ACCEL_CONFIG: +-8 g
+  writeReg(0x1B, 0x00);  // GYRO_CONFIG: +-250 dps
+  writeReg(0x1C, 0x00);  // ACCEL_CONFIG: +-2 g
   writeReg(0x1D, 0x03);  // ACCEL_CONFIG2 (MPU-6500): accel DLPF ~44.8 Hz
   
   return true;
 }
 
 void mpu6050_read(MotionSample &ms) {
-  uint8_t st;
-  if (readRegs(0x3A, &st, 1) && (st & 0x01)) {      // INT_STATUS: data ready
-    uint8_t b[14];
-    uint32_t t = micros();                          // timestamp at read time
-    if (readRegs(0x3B, b, 14)) {
-      ms.accel[0] = (int16_t)((b[0]  << 8) | b[1]) / 4096.0f; //ax (g)
-      ms.accel[1] = (int16_t)((b[2]  << 8) | b[3]) / 4096.0f; //ay (g)
-      ms.accel[2] = (int16_t)((b[4]  << 8) | b[5]) / 4096.0f; //az (g)
-      ms.gyro[0] = (int16_t)((b[8]  << 8) | b[9]) / 65.5f; //gx (deg/s)
-      ms.gyro[1] = (int16_t)((b[10] << 8) | b[11]) / 65.5f; //gy (deg/s)
-      ms.gyro[2] = (int16_t)((b[12] << 8) | b[13]) / 65.5f; //gz (deg/s)
+  uint8_t status;
+  if (readRegs(0x3A, &status, 1) && (status & 0x01)) {      // INT_STATUS: data ready
+    uint8_t buffer[14];
+    if (readRegs(0x3B, buffer, 14)) {
+      ms.accel[0] = (int16_t)((buffer[0]  << 8) | buffer[1]) / 16384.0f; //ax (g)
+      ms.accel[1] = (int16_t)((buffer[2]  << 8) | buffer[3]) / 16384.0f; //ay (g)
+      ms.accel[2] = (int16_t)((buffer[4]  << 8) | buffer[5]) / 16384.0f; //az (g)
+      ms.gyro[0] = (int16_t)((buffer[8]  << 8) | buffer[9]) / 131.0f; //gx (deg/s)
+      ms.gyro[1] = (int16_t)((buffer[10] << 8) | buffer[11]) / 131.0f; //gy (deg/s)
+      ms.gyro[2] = (int16_t)((buffer[12] << 8) | buffer[13]) / 131.0f; //gz (deg/s)
     }
   }
 }
