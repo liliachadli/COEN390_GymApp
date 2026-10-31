@@ -28,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
     BluetoothHelper bleHelp;
 
     protected Button logoutButton;
+    protected Button startButton;
+    protected Button stopButton;
+    TrackingSession trackingSession = new TrackingSession();
     TextView tv_xaccel, tv_yaccel, tv_zaccel, tv_xgyro, tv_ygyro, tv_zgyro, tv_redcount, tv_ircount;
 
     @Override
@@ -49,6 +52,20 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();   // onDestroy() disconnects from the ESP32
+        });
+
+        // APP-0.4: Start/Stop Tracking buttons
+        startButton = findViewById(R.id.startButton);
+        stopButton = findViewById(R.id.stopButton);
+
+        startButton.setOnClickListener(v -> {
+            trackingSession.start();
+            Toast.makeText(this, "Tracking started", Toast.LENGTH_SHORT).show();
+        });
+
+        stopButton.setOnClickListener(v -> {
+            trackingSession.stop();
+            Toast.makeText(this, "Tracking stopped", Toast.LENGTH_SHORT).show();
         });
 
         bluetoothEnableResult = registerForActivityResult(
@@ -148,6 +165,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void displayReceivedData(byte[] value) {
+        // APP-0.4: only update the screen while tracking
+        if (!trackingSession.isTracking()) {
+            bleHelp.setReadyToDisplay();
+            return;
+        }
+
         // Packet is 40 bytes; a shorter one (e.g. MTU not raised) would crash getFloat()
         if (value == null || value.length < 40) {
             Log.e("MainActivity", "Short packet: " + (value == null ? 0 : value.length) + " bytes");
