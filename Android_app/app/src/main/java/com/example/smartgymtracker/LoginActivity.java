@@ -2,6 +2,7 @@ package com.example.smartgymtracker;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -44,29 +45,33 @@ public class LoginActivity extends AppCompatActivity {
         String email = emailLoginInput.getText().toString().trim();
         String password = passwordLoginInput.getText().toString();
 
+        // Check if email and password are filled
         if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please enter both email and password", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_LONG).show();
             return;
         }
 
+        // Check if entered email exists in the database
         String storedPasswordHash = dbHelper.getPasswordHash(email);
         if (storedPasswordHash == null) {
-            Toast.makeText(this, "User does not exist", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Invalid email or password", Toast.LENGTH_LONG).show();
             return;
         }
 
+        // Verify the entered password
         try {
             boolean isValid = Password.checkPassword(password, storedPasswordHash);
             if (isValid) {
-                Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Login successful", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             } else {
-                Toast.makeText(this, "Incorrect password", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Incorrect password", Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
-            Toast.makeText(this, "Login error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.e("LoginActivity", "Password verification failed", e);
+            Toast.makeText(this, "Unable to verify password", Toast.LENGTH_LONG).show();
         }
     }
 
