@@ -4,12 +4,12 @@
 // MAX30102  ->  ESP32-C3 SuperMini
 // VIN       ->  3V3 (measured 3.29 V)
 // GND       ->  GND
-// SDA       ->  GPIO4
-// SCL       ->  GPIO5
+// SDA       ->  GPIO1 (shared with the MPU6050)
+// SCL       ->  GPIO0 (shared with the MPU6050)
 // INT, RD, IRD -> not connected (INT gave false edges, we use polling)
 
-#define MAX30102_SDA_PIN   4
-#define MAX30102_SCL_PIN   5
+#define MAX30102_SDA_PIN   1
+#define MAX30102_SCL_PIN   0
 #define MAX30102_I2C_ADDR  0x57
 #define MAX30102_I2C_CLOCK 100000
 

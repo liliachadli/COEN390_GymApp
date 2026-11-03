@@ -23,7 +23,7 @@ bool readRegs(uint8_t reg, uint8_t *buf, uint8_t n) {
 }
 
 bool mpu6050_init() {
-  // Uses the I2C bus (GPIO4/5) already started in main.cpp, shared with the MAX30102
+  // Uses the I2C bus (SDA GPIO1, SCL GPIO0) already started in main.cpp, shared with the MAX30102
 
   writeReg(0x6B, 0x00);  // PWR_MGMT_1: wake up
   writeReg(0x19, 9);     // SMPLRT_DIV: 1000 / (1+9) = 100 Hz

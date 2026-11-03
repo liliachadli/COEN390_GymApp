@@ -2,6 +2,7 @@
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLE2902.h>
+#include <BLESecurity.h>
 #include "ble_tracker.h"
 
 static BLECharacteristic *dataChar = nullptr;
@@ -34,6 +35,13 @@ void ble_begin() {
 
   BLEDevice::init(deviceName);
   BLEDevice::setMTU(185);  // packet is 40 bytes, default BLE limit is 20
+  BLESecurity *sec = new BLESecurity();
+  sec->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_BOND);
+  sec->setCapability(ESP_IO_CAP_NONE);
+  // Share only BLE keys. Without this the stack also tries to derive a
+  // classic Bluetooth link key, which the C3 can't do, and pairing breaks.
+  sec->setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
+  sec->setRespEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
 
   // BLE-1.2 - GATT service with a data and an info characteristic
   BLEServer *server = BLEDevice::createServer();
@@ -46,6 +54,8 @@ void ble_begin() {
       BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
   dataCccd = new BLE2902();   // lets the phone turn notifications on/off
   dataChar->addDescriptor(dataCccd);
+  dataChar->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED);
+  dataCccd->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
 
   BLECharacteristic *infoChar = service->createCharacteristic(
       BLE_INFO_UUID, BLECharacteristic::PROPERTY_READ);
