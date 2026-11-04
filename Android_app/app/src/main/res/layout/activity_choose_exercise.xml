@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- APP-1.4: Choose exercise -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gym_bg"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    tools:context=".ChooseExerciseActivity">
+
+    <include layout="@layout/layout_step_header" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp">
+
+        <!-- The exercise cards are added here in ChooseExerciseActivity.java -->
+        <LinearLayout
+            android:id="@+id/option_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="4dp"
+            android:paddingBottom="8dp" />
+    </ScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/continue_button"
+        style="@style/Gym.Button.Primary"
+        android:layout_margin="20dp"
+        android:enabled="false"
+        android:text="Continue" />
+
+</LinearLayout>
