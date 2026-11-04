@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Dark theme used by the workout setup screens -->
+    <style name="Theme.SmartGymTracker.Workout" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/gym_accent</item>
+        <item name="colorOnPrimary">@color/gym_on_accent</item>
+        <item name="android:windowBackground">@color/gym_bg</item>
+        <item name="android:statusBarColor">@color/gym_bg</item>
+        <item name="android:navigationBarColor">@color/gym_bg</item>
+    </style>
+
+    <!-- Big lime button at the bottom of each screen -->
+    <style name="Gym.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">18dp</item>
+        <item name="backgroundTint">@color/btn_primary_bg</item>
+        <item name="android:textColor">@color/btn_primary_text</item>
+        <item name="iconTint">@color/btn_primary_text</item>
+    </style>
+
+    <!-- Empty base styles: Android needs a parent for names like "Gym.Text.Title" -->
+    <style name="Gym" />
+    <style name="Gym.Text" />
+
+    <style name="Gym.Text.Title">
+        <item name="android:textColor">@color/gym_text</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+    </style>
+
+    <style name="Gym.Text.Subtitle">
+        <item name="android:textColor">@color/gym_text_secondary</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+    </style>
+
+    <style name="Gym.Text.Label">
+        <item name="android:textColor">@color/gym_text_secondary</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.12</item>
+    </style>
+
+    <style name="Gym.Text.CardTitle">
+        <item name="android:textColor">@color/gym_text</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Gym.Text.CardSubtitle">
+        <item name="android:textColor">@color/gym_text_secondary</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <!-- Outlined button (Stop) -->
+    <style name="Gym.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_height">60dp</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/gym_text</item>
+        <item name="cornerRadius">18dp</item>
+        <item name="strokeColor">@color/gym_stroke</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <!-- Text field used on login and register -->
+    <style name="Gym.Input">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:background">@drawable/bg_input</item>
+        <item name="android:paddingStart">18dp</item>
+        <item name="android:paddingEnd">18dp</item>
+        <item name="android:textColor">@color/gym_text</item>
+        <item name="android:textColorHint">@color/gym_text_muted</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <!-- Small value card on the live data screen -->
+    <style name="Gym.ValueCard">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/bg_card_default</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">14dp</item>
+    </style>
+
+    <style name="Gym.Text.Value">
+        <item name="android:textColor">@color/gym_text</item>
+        <item name="android:textSize">19sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+</resources>

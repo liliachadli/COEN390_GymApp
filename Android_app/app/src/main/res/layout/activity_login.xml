@@ -1,80 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center_horizontal"
-    android:background="#303030">
+    android:background="@color/gym_bg"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:id="@+id/loginVerticalLayout"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
+        android:gravity="center_vertical"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5">
+        android:padding="24dp">
+
+        <!-- Logo -->
+        <FrameLayout
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:background="@drawable/bg_icon_circle">
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_fitness"
+                app:tint="@color/gym_accent" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/appTitleRegister"
+            style="@style/Gym.Text.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:fontFamily="sans-serif-black"
-            android:gravity="center_horizontal"
+            android:layout_marginTop="24dp"
             android:text="Smart Gym Tracker"
-            android:textColor="#FFFFFF"
-            android:textSize="26sp"
-            android:textStyle="bold" />
+            android:textSize="32sp" />
+
+        <TextView
+            style="@style/Gym.Text.Subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Log in to track every rep, set and heartbeat." />
+
+        <TextView
+            style="@style/Gym.Text.Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:layout_marginBottom="8dp"
+            android:text="EMAIL" />
 
         <EditText
             android:id="@+id/emailLoginInput"
+            style="@style/Gym.Input"
+            android:hint="you@example.com"
+            android:inputType="textEmailAddress" />
+
+        <TextView
+            style="@style/Gym.Text.Label"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:layout_marginBottom="16dp"
-            android:hint="Email address"
-            android:inputType="textEmailAddress"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#AAAAAA"
-            android:textSize="18sp"
-            android:textStyle="normal" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp"
+            android:text="PASSWORD" />
 
         <EditText
             android:id="@+id/passwordLoginInput"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:layout_marginBottom="16dp"
-            android:hint="Password"
-            android:inputType="textPassword"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#AAAAAA"
-            android:textSize="18sp" />
+            style="@style/Gym.Input"
+            android:hint="Your password"
+            android:inputType="textPassword" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/loginButton"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="#6B6B6B"
-            android:text="Login"
-            android:textColor="#FFFFFF"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-
+            style="@style/Gym.Button.Primary"
+            android:layout_marginTop="32dp"
+            android:text="Log in" />
 
         <LinearLayout
             android:id="@+id/horizontalLayoutLogin"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -82,22 +92,22 @@
                 android:id="@+id/signupLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:text="Don't have an account?"
-                android:textColor="#CCCCCC"
-                android:textSize="16sp" />
+                android:textColor="@color/gym_text_secondary"
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/signupLabelClick"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:gravity="center"
-                android:text=" Sign up"
-                android:textColor="#2196F3"
-                android:textSize="16sp" />
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:text="Sign up"
+                android:textColor="@color/gym_accent"
+                android:textSize="15sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
-
-
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

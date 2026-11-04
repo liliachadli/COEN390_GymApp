@@ -24,15 +24,33 @@
         android:theme="@style/Theme.SmartGymTracker">
 
         <activity
+            android:name=".ChooseExerciseActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmartGymTracker.Workout" />
+
+        <activity
+            android:name=".ChooseEquipmentActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmartGymTracker.Workout" />
+
+        <activity
+            android:name=".StartWorkoutActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmartGymTracker.Workout" />
+
+        <activity
             android:name=".MainActivity"
+            android:theme="@style/Theme.SmartGymTracker.Workout"
             android:exported="false"/>
 
         <activity
             android:name=".RegisterActivity"
+            android:theme="@style/Theme.SmartGymTracker.Workout"
             android:exported="false"/>
 
         <activity
             android:name=".LoginActivity"
+            android:theme="@style/Theme.SmartGymTracker.Workout"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -47,4 +65,4 @@
             android:resource="@array/preloaded_fonts" />
     </application>
 
-</manifest>
+</manifest>

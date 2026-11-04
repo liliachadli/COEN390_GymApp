@@ -2,4 +2,16 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-</resources>
+
+    <!-- Workout screens (dark gym theme) -->
+    <color name="gym_bg">#FF0E0F11</color>
+    <color name="gym_surface">#FF17191C</color>
+    <color name="gym_surface_high">#FF22252A</color>
+    <color name="gym_stroke">#FF2C3036</color>
+    <color name="gym_accent">#FFC8F04B</color>
+    <color name="gym_accent_soft">#24C8F04B</color>
+    <color name="gym_on_accent">#FF0E0F11</color>
+    <color name="gym_text">#FFF4F5F7</color>
+    <color name="gym_text_secondary">#FF9AA0A6</color>
+    <color name="gym_text_muted">#FF5F656D</color>
+</resources>

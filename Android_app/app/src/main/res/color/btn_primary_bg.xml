@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Main button color: grey when disabled, lime when enabled -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/gym_surface_high" android:state_enabled="false" />
+    <item android:color="@color/gym_accent" />
+</selector>

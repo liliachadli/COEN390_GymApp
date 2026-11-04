@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Small body drawing with the back highlighted in lime (back view) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#FF3A3F46"
+        android:pathData="M20.2,5.5a3.8,3.8 0 1,0 7.6,0a3.8,3.8 0 1,0 -7.6,0z" />
+    <path
+        android:fillColor="#FF3A3F46"
+        android:pathData="M22,8.5h4v4h-4z" />
+    <path
+        android:fillColor="#FF3A3F46"
+        android:pathData="M15,11.5H33Q35.6,11.5 35,14.5L31,27Q30.7,28 29.7,28H18.3Q17.3,28 17,27L13,14.5Q12.4,11.5 15,11.5Z" />
+    <path
+        android:pathData="M13.2,13.6L10.2,21"
+        android:strokeColor="#FF3A3F46"
+        android:strokeLineCap="round"
+        android:strokeWidth="4.4" />
+    <path
+        android:pathData="M10.2,21L9.2,28"
+        android:strokeColor="#FF3A3F46"
+        android:strokeLineCap="round"
+        android:strokeWidth="3.8" />
+    <path
+        android:pathData="M34.8,13.6L37.8,21"
+        android:strokeColor="#FF3A3F46"
+        android:strokeLineCap="round"
+        android:strokeWidth="4.4" />
+    <path
+        android:pathData="M37.8,21L38.8,28"
+        android:strokeColor="#FF3A3F46"
+        android:strokeLineCap="round"
+        android:strokeWidth="3.8" />
+    <path
+        android:pathData="M20.6,29.5L20.2,44.5"
+        android:strokeColor="#FF3A3F46"
+        android:strokeLineCap="round"
+        android:strokeWidth="5.4" />
+    <path
+        android:pathData="M27.4,29.5L27.8,44.5"
+        android:strokeColor="#FF3A3F46"
+        android:strokeLineCap="round"
+        android:strokeWidth="5.4" />
+    <path
+        android:fillColor="#FFC8F04B"
+        android:pathData="M15.6,13.2H32.4L29.2,25.2H18.8Z" />
+    <path
+        android:fillColor="#FF5F656D"
+        android:pathData="M23.6,13h0.8v13h-0.8z" />
+</vector>
