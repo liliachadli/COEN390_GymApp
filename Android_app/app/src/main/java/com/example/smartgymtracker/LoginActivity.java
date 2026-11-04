@@ -1,8 +1,8 @@
 package com.example.smartgymtracker;
 
+import com.google.firebase.auth.FirebaseAuth;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -15,7 +15,8 @@ public class LoginActivity extends AppCompatActivity {
     protected EditText passwordLoginInput;
     protected Button loginButton;
     protected TextView signupLabelClick;
-    protected DatabaseHelper dbHelper;
+    protected FirebaseAuth auth;
+
 
 
     @Override
@@ -23,13 +24,13 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Connecting variables to the xml components
+        // Connecting variables to the XML components
         emailLoginInput = findViewById(R.id.emailLoginInput);
         passwordLoginInput = findViewById(R.id.passwordLoginInput);
         loginButton = findViewById(R.id.loginButton);
 
-        // Initialize dbHelper
-        dbHelper = new DatabaseHelper(this);
+        // Initialize Firebase auth
+        auth = FirebaseAuth.getInstance();
 
         // Connecting the Login button to loginUser()
         loginButton.setOnClickListener(v -> loginUser());
@@ -51,33 +52,28 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // Check if entered email exists in the database
-        String storedPasswordHash = dbHelper.getPasswordHash(email);
-        if (storedPasswordHash == null) {
-            Toast.makeText(this, "Invalid email or password", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        // Verify the entered password
-        try {
-            boolean isValid = Password.checkPassword(password, storedPasswordHash);
-            if (isValid) {
+        // Check if user exists in the database
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
+            if(task.isSuccessful()){
                 Toast.makeText(this, "Login successful", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(LoginActivity.this, ChooseExerciseActivity.class);
-                startActivity(intent);
-                finish();
-            } else {
-                Toast.makeText(this, "Incorrect password", Toast.LENGTH_LONG).show();
+                goToMain();
             }
-        } catch (Exception e) {
-            Log.e("LoginActivity", "Password verification failed", e);
-            Toast.makeText(this, "Unable to verify password", Toast.LENGTH_LONG).show();
-        }
+            else{
+                Toast.makeText(this, "Login failed", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
-    //Switch to login page (intent)
+    // Switch to register page
     private void goToRegister() {
         Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
         startActivity(intent);
+    }
+
+    // Switch to main page
+    private void goToMain() {
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
