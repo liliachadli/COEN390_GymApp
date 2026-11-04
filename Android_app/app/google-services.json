@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "810795957806",
+    "project_id": "smart-gym-tracker-aba31",
+    "storage_bucket": "smart-gym-tracker-aba31.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:810795957806:android:929a01ecb85dd79404a9bf",
+        "android_client_info": {
+          "package_name": "com.example.smartgymtracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_Uk3bKFaoQ8WFfGp7QBENPwYFNqOm2PE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

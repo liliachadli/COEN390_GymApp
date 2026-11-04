@@ -1,7 +1,9 @@
 package com.example.smartgymtracker;
 
-import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.auth.FirebaseUser;
+
 import android.os.Bundle;
 import android.util.Patterns;
 import android.widget.Button;
@@ -11,8 +13,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
+import java.util.Map;
+import java.util.HashMap;
+
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -21,22 +24,25 @@ public class RegisterActivity extends AppCompatActivity {
     protected EditText passwordConfirmRegisterInput;
     protected Button createAccountButton;
     protected TextView loginLabelClick;
-    protected DatabaseHelper dbHelper;
+    protected FirebaseAuth auth;
+    protected FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        //Connecting variables to xml components
+        //Connecting variables to XML components
         emailRegisterInput = findViewById(R.id.emailRegisterInput);
         passwordRegisterInput = findViewById(R.id.passwordRegisterInput);
         passwordConfirmRegisterInput = findViewById(R.id.passwordConfirmRegisterInput);
         createAccountButton = findViewById(R.id.createAccountButton);
         loginLabelClick = findViewById(R.id.loginLabelClick);
 
-        // Initialize dbHelper
-        dbHelper = new DatabaseHelper(this);
+        // Initialize Firebase Auth and database
+        auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+
 
         // Connecting the Register button to registerUser()
         createAccountButton.setOnClickListener(v -> registerUser());
@@ -81,33 +87,32 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Check if entered email exists in the database
-        boolean emailCheck = dbHelper.checkEmail(email);
-        if (emailCheck){
-            Toast.makeText(this, "Email already exists", Toast.LENGTH_LONG).show();
-            return;
-        }
+        // Create and store user accounts in the database
+        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
+            if(task.isSuccessful()){
+                FirebaseUser user = auth.getCurrentUser();
+                if(user != null){
+                    String uid = user.getUid();
+                    Map<String, Object> userData = new HashMap<>();
+                    userData.put("email", email);
+                    db.collection("users").document(uid).set(userData)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(this, "Account created successfully", Toast.LENGTH_LONG).show();
+                                auth.signOut();
+                                finish();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Failed to save user information", Toast.LENGTH_LONG).show();
+                            });
+                }
+                else{
+                    Toast.makeText(this, "Failed to retrieve user information", Toast.LENGTH_LONG).show();
+                }
 
-        // Hash entered password
-
-        String hashPassword;
-        try{
-            hashPassword = Password.hashPassword(password);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e){
-            Toast.makeText(this, "Unable to process password", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        // Inserting the user in the database
-        User user = new User(email, hashPassword);
-        boolean insertSuccess = dbHelper.insertUser(user);
-
-        if (insertSuccess){
-            Toast.makeText(this, "Account created successfully", Toast.LENGTH_LONG).show();
-            finish();
-        } else {
-            Toast.makeText(this, "Failed to create account", Toast.LENGTH_LONG).show();
-        }
+            } else {
+                Toast.makeText(this, "Failed to create account", Toast.LENGTH_LONG).show();
+            }
+            });
 
 
 
