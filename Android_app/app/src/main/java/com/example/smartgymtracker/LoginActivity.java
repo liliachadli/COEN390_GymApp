@@ -63,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
             boolean isValid = Password.checkPassword(password, storedPasswordHash);
             if (isValid) {
                 Toast.makeText(this, "Login successful", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                Intent intent = new Intent(LoginActivity.this, ChooseExerciseActivity.class);
                 startActivity(intent);
                 finish();
             } else {
