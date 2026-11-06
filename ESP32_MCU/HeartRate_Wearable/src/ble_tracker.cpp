@@ -11,7 +11,6 @@ static bool connected = false;
 static uint32_t disconnects = 0;
 static char deviceName[12];
 
-// Called by the BLE stack when a phone connects or disconnects
 class ServerCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer *server) override {
     connected = true;
@@ -27,23 +26,19 @@ class ServerCallbacks : public BLEServerCallbacks {
 };
 
 void ble_begin() {
-  // BLE-1.3 - tracker name "SGT-XXXX", last 2 bytes of this chip's MAC,
-  // so two trackers in the same room have different names
   uint64_t mac = ESP.getEfuseMac();
   snprintf(deviceName, sizeof(deviceName), "SGT-%02X%02X",
            (uint8_t)(mac >> 32), (uint8_t)(mac >> 40));
 
   BLEDevice::init(deviceName);
-  BLEDevice::setMTU(185);  // packet is 40 bytes, default BLE limit is 20
+  BLEDevice::setMTU(185);
   BLESecurity *sec = new BLESecurity();
   sec->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_BOND);
   sec->setCapability(ESP_IO_CAP_NONE);
-  // Share only BLE keys. Without this the stack also tries to derive a
-  // classic Bluetooth link key, which the C3 can't do, and pairing breaks.
+  // without this the stack tries to derive a classic BT key and pairing fails on the C3
   sec->setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
   sec->setRespEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
 
-  // BLE-1.2 - GATT service with a data and an info characteristic
   BLEServer *server = BLEDevice::createServer();
   server->setCallbacks(new ServerCallbacks());
 
@@ -52,7 +47,7 @@ void ble_begin() {
   dataChar = service->createCharacteristic(
       BLE_DATA_UUID,
       BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
-  dataCccd = new BLE2902();   // lets the phone turn notifications on/off
+  dataCccd = new BLE2902();
   dataChar->addDescriptor(dataCccd);
   dataChar->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED);
   dataCccd->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
@@ -63,12 +58,11 @@ void ble_begin() {
 
   service->start();
 
-  // BLE-1.3 - advertising: service UUID in the advertisement so the app
-  // can filter for it, name in the scan response (not enough room for both)
+  // name goes in the scan response, not enough room for it with the UUID
   BLEAdvertising *adv = BLEDevice::getAdvertising();
 
   BLEAdvertisementData advData;
-  advData.setFlags(0x06);  // general discoverable, BLE only
+  advData.setFlags(0x06);
   advData.setCompleteServices(BLEUUID(BLE_SERVICE_UUID));
   adv->setAdvertisementData(advData);
 
@@ -92,10 +86,16 @@ bool ble_isSubscribed() {
   return connected && dataCccd != nullptr && dataCccd->getNotifications();
 }
 
-// BLE-1.5 - send one packet as a notification
 bool ble_send(const RawPacket &p) {
   if (!ble_isSubscribed()) return false;
   dataChar->setValue((uint8_t *)&p, sizeof(p));
+  dataChar->notify();
+  return true;
+}
+
+bool ble_sendText(const char *line) {
+  if (!ble_isSubscribed()) return false;
+  dataChar->setValue((uint8_t *)line, strlen(line));
   dataChar->notify();
   return true;
 }
