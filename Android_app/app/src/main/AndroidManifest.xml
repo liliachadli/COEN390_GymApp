@@ -24,19 +24,52 @@
         android:theme="@style/Theme.SmartGymTracker">
 
         <activity
+            android:name=".DashboardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmartGymTracker.Workout" />
+
+        <activity
+            android:name=".WorkoutActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmartGymTracker.Workout" />
+
+        <activity
             android:name=".ChooseExerciseActivity"
             android:exported="false"
-            android:theme="@style/Theme.SmartGymTracker.Workout" />
+            android:theme="@style/Theme.SmartGymTracker.Workout"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".ChooseEquipmentActivity"
+            android:name=".ExerciseDetailsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmartGymTracker.Workout"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".SetDetailsActivity"
             android:exported="false"
             android:theme="@style/Theme.SmartGymTracker.Workout" />
 
         <activity
-            android:name=".StartWorkoutActivity"
+            android:name=".HistoryActivity"
             android:exported="false"
             android:theme="@style/Theme.SmartGymTracker.Workout" />
+
+        <activity
+            android:name=".PastWorkoutActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmartGymTracker.Workout" />
+
+        <activity
+            android:name=".PastSetActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmartGymTracker.Workout" />
+
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmartGymTracker.Workout"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".MainActivity"
@@ -65,4 +98,4 @@
             android:resource="@array/preloaded_fonts" />
     </application>
 
-</manifest>
+</manifest>

@@ -27,6 +27,7 @@
     <!-- Empty base styles: Android needs a parent for names like "Gym.Text.Title" -->
     <style name="Gym" />
     <style name="Gym.Text" />
+    <style name="Gym.Button" />
 
     <style name="Gym.Text.Title">
         <item name="android:textColor">@color/gym_text</item>
@@ -97,6 +98,140 @@
         <item name="android:textSize">19sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:maxLines">1</item>
+    </style>
+
+    <!-- Bottom bar -->
+    <style name="Gym.BottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/gym_nav_bg</item>
+        <item name="itemIconTint">@color/nav_item</item>
+        <item name="itemTextColor">@color/nav_item</item>
+        <item name="itemActiveIndicatorStyle">@style/Gym.NavIndicator</item>
+        <item name="labelVisibilityMode">labeled</item>
+    </style>
+
+    <style name="Gym.NavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/gym_accent_tint</item>
+    </style>
+
+    <!-- Small lime button (Select, Start, Finish) -->
+    <style name="Gym.Button.Small" parent="Widget.Material3.Button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="backgroundTint">@color/btn_primary_bg</item>
+        <item name="android:textColor">@color/btn_primary_text</item>
+        <item name="iconTint">@color/btn_primary_text</item>
+    </style>
+
+    <!-- Small button with a grey border (Edit, Select on other exercises) -->
+    <style name="Gym.Button.SmallOutline" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/gym_text</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="strokeColor">@color/gym_body</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <!-- Red outlined button (Cancel, Delete set, Log out) -->
+    <style name="Gym.Button.Danger" parent="Gym.Button.SmallOutline">
+        <item name="android:textColor">@color/gym_coral</item>
+        <item name="strokeColor">@color/gym_danger_stroke</item>
+    </style>
+
+    <!-- Dark grey full-width button (Done in sheets) -->
+    <style name="Gym.Button.Grey" parent="Widget.Material3.Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">18dp</item>
+        <item name="backgroundTint">@color/gym_surface_high</item>
+        <item name="android:textColor">@color/gym_text</item>
+    </style>
+
+    <!-- Dashed "Add ..." button -->
+    <style name="Gym.Button.Dashed">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:background">@drawable/bg_dashed</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/gym_text</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Square back arrow -->
+    <style name="Gym.BackButton">
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:background">@drawable/bg_square_button</item>
+        <item name="android:src">@drawable/ic_arrow_back</item>
+        <item name="android:padding">11dp</item>
+        <item name="android:contentDescription">Back</item>
+        <item name="tint">@color/gym_text</item>
+    </style>
+
+    <!-- Status chip (Connected, MOVING, 1 PR) -->
+    <style name="Gym.Chip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/bg_pill</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Card with padding -->
+    <style name="Gym.Card">
+        <item name="android:background">@drawable/bg_card_default</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <!-- Big number in a stat card -->
+    <style name="Gym.Text.Stat">
+        <item name="android:textColor">@color/gym_text</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <!-- Profile text fields -->
+    <style name="Gym.Input.Small" parent="Gym.Input">
+        <item name="android:layout_height">48dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <!-- M/F and lbs/kg buttons -->
+    <style name="Gym.Button.Toggle" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="backgroundTint">@color/toggle_bg</item>
+        <item name="android:textColor">@color/toggle_text</item>
+        <item name="strokeColor">@color/gym_stroke</item>
     </style>
 
 </resources>
