@@ -14,4 +14,21 @@
     <color name="gym_text">#FFF4F5F7</color>
     <color name="gym_text_secondary">#FF9AA0A6</color>
     <color name="gym_text_muted">#FF5F656D</color>
-</resources>
+    <!-- Extra colors: one per muscle group + its dark tile -->
+    <color name="gym_coral">#FFFF6B5A</color>
+    <color name="gym_coral_tint">#FF2E1714</color>
+    <color name="gym_cyan">#FF4CC9F0</color>
+    <color name="gym_cyan_tint">#FF0F2630</color>
+    <color name="gym_amber">#FFFFB547</color>
+    <color name="gym_amber_tint">#FF2E2410</color>
+    <color name="gym_violet">#FFA78BFA</color>
+    <color name="gym_violet_tint">#FF221B36</color>
+    <color name="gym_pink">#FFFF8FD0</color>
+    <color name="gym_pink_tint">#FF331A2A</color>
+    <color name="gym_accent_tint">#FF1C2A10</color>
+    <color name="gym_accent_stroke">#FF3D5419</color>
+    <color name="gym_danger_stroke">#FF3A2420</color>
+    <color name="gym_nav_bg">#FF121316</color>
+    <color name="gym_body">#FF3A3F46</color>
+    <color name="gym_scrim">#FF060708</color>
+</resources>

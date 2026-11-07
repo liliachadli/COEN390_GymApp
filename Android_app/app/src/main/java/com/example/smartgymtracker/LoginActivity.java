@@ -72,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
 
     // Switch to main page
     private void goToMain() {
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
         startActivity(intent);
         finish();
     }

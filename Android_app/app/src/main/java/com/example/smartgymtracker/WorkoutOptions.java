@@ -1,104 +1,55 @@
 package com.example.smartgymtracker;
 
-// Exercises and machines the user can choose (APP-1.4 / APP-1.5).
-// Machine and cable exercises; the bracelet on the wrist tracks the reps.
+// All exercises the user can add (APP-1.4 / APP-1.5).
+// Each exercise exists in a cable and/or machine version.
 public class WorkoutOptions {
 
-    // Keys used to pass the choices from one screen to the next
-    public static final String EXTRA_EXERCISE = "exercise";
-    public static final String EXTRA_EQUIPMENT = "equipment";
+    public static final String CABLE = "Cable";
+    public static final String MACHINE = "Machine";
 
     // Muscle groups, in the order they are shown
     public static final String[] MUSCLE_GROUPS = {
             "Chest", "Back", "Shoulders", "Biceps", "Triceps", "Legs"
     };
 
-    // All exercises. The 4 arrays below are in the same order.
+    // The 3 arrays below are in the same order: one line = one choice
     public static final String[] EXERCISES = {
-            "Chest Press", "Pec Deck Fly", "Cable Crossover",
-            "Lat Pulldown", "Seated Row",
-            "Shoulder Press", "Lateral Raise",
+            "Chest Press", "Chest Press", "Pec Deck Fly", "Cable Crossover",
+            "Lat Pulldown", "Lat Pulldown", "Seated Row", "Seated Row",
+            "Shoulder Press", "Lateral Raise", "Lateral Raise",
             "Cable Biceps Curl", "Preacher Curl",
             "Triceps Pushdown", "Overhead Cable Extension",
             "Leg Press", "Leg Extension", "Leg Curl"
     };
 
-    // Muscle group of each exercise
-    public static final String[] EXERCISE_GROUPS = {
-            "Chest", "Chest", "Chest",
-            "Back", "Back",
-            "Shoulders", "Shoulders",
+    public static final String[] EQUIPMENT = {
+            CABLE, MACHINE, MACHINE, CABLE,
+            CABLE, MACHINE, CABLE, MACHINE,
+            MACHINE, CABLE, MACHINE,
+            CABLE, MACHINE,
+            CABLE, CABLE,
+            MACHINE, MACHINE, MACHINE
+    };
+
+    public static final String[] GROUPS = {
+            "Chest", "Chest", "Chest", "Chest",
+            "Back", "Back", "Back", "Back",
+            "Shoulders", "Shoulders", "Shoulders",
             "Biceps", "Biceps",
             "Triceps", "Triceps",
             "Legs", "Legs", "Legs"
     };
 
-    // Muscles worked, shown under the exercise name
-    public static final String[] MUSCLES = {
-            "Chest · Triceps", "Chest", "Chest · Shoulders",
-            "Lats · Biceps", "Mid back · Biceps",
-            "Shoulders · Triceps", "Side shoulders",
-            "Biceps · Forearms", "Biceps",
-            "Triceps", "Triceps",
-            "Quads · Glutes", "Quads", "Hamstrings"
-    };
-
-    // Machines that can be used for each exercise
-    public static final String[][] EQUIPMENT = {
-            {"Chest Press Machine", "Cable Station"}, {"Pec Deck Machine"}, {"Cable Station"},
-            {"Lat Pulldown Machine", "Cable Station"}, {"Seated Row Machine", "Cable Station"},
-            {"Shoulder Press Machine"}, {"Lateral Raise Machine", "Cable Station"},
-            {"Cable Station"}, {"Preacher Curl Machine"},
-            {"Cable Station"}, {"Cable Station"},
-            {"Leg Press Machine"}, {"Leg Extension Machine"}, {"Leg Curl Machine"}
-    };
-
-    // Position of an exercise in the arrays above (-1 if not found)
-    private static int indexOf(String exercise) {
+    public static String getGroupFor(String exercise) {
         for (int i = 0; i < EXERCISES.length; i++) {
             if (EXERCISES[i].equals(exercise)) {
-                return i;
+                return GROUPS[i];
             }
         }
-        return -1;
+        return "Chest";
     }
 
-    public static String[] getEquipmentFor(String exercise) {
-        int i = indexOf(exercise);
-        if (i == -1) {
-            return new String[0];
-        }
-        return EQUIPMENT[i];
-    }
-
-    public static String getMusclesFor(String exercise) {
-        int i = indexOf(exercise);
-        if (i == -1) {
-            return "";
-        }
-        return MUSCLES[i];
-    }
-
-    public static String getGroupFor(String exercise) {
-        int i = indexOf(exercise);
-        if (i == -1) {
-            return "";
-        }
-        return EXERCISE_GROUPS[i];
-    }
-
-    // Number of exercises in a muscle group
-    public static int countInGroup(String group) {
-        int count = 0;
-        for (String g : EXERCISE_GROUPS) {
-            if (g.equals(group)) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    // Small body drawing with the muscle group highlighted
+    // Body drawing with the muscle highlighted (style C5)
     public static int getIconForGroup(String group) {
         switch (group) {
             case "Chest":
@@ -116,10 +67,39 @@ public class WorkoutOptions {
         }
     }
 
-    public static String getEquipmentDescription(String equipment) {
-        if (equipment.equals("Cable Station")) {
-            return "Adjustable cable pulley";
+    // Main color of each muscle group
+    public static int getColorForGroup(String group) {
+        switch (group) {
+            case "Chest":
+                return R.color.gym_coral;
+            case "Back":
+                return R.color.gym_cyan;
+            case "Shoulders":
+                return R.color.gym_amber;
+            case "Biceps":
+                return R.color.gym_accent;
+            case "Triceps":
+                return R.color.gym_violet;
+            default:
+                return R.color.gym_pink;
         }
-        return "Weight-stack machine";
+    }
+
+    // Dark version of the color, used behind the drawing
+    public static int getTintForGroup(String group) {
+        switch (group) {
+            case "Chest":
+                return R.color.gym_coral_tint;
+            case "Back":
+                return R.color.gym_cyan_tint;
+            case "Shoulders":
+                return R.color.gym_amber_tint;
+            case "Biceps":
+                return R.color.gym_accent_tint;
+            case "Triceps":
+                return R.color.gym_violet_tint;
+            default:
+                return R.color.gym_pink_tint;
+        }
     }
 }
