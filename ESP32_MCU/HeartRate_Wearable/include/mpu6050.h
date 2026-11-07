@@ -9,4 +9,4 @@ struct MotionSample {
 void writeReg(uint8_t reg, uint8_t val);    
 bool readRegs(uint8_t reg, uint8_t *buf, uint8_t n);       
 bool mpu6050_init();   
-void mpu6050_read(MotionSample &m);
+bool mpu6050_read(MotionSample &m);

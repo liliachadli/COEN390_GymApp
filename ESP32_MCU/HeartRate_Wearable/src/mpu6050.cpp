@@ -35,7 +35,7 @@ bool mpu6050_init() {
   return true;
 }
 
-void mpu6050_read(MotionSample &ms) {
+bool mpu6050_read(MotionSample &ms) {
   uint8_t status;
   if (readRegs(0x3A, &status, 1) && (status & 0x01)) {      // INT_STATUS: data ready
     uint8_t buffer[14];
@@ -46,6 +46,8 @@ void mpu6050_read(MotionSample &ms) {
       ms.gyro[0] = (int16_t)((buffer[8]  << 8) | buffer[9]) / 131.0f; //gx (deg/s)
       ms.gyro[1] = (int16_t)((buffer[10] << 8) | buffer[11]) / 131.0f; //gy (deg/s)
       ms.gyro[2] = (int16_t)((buffer[12] << 8) | buffer[13]) / 131.0f; //gz (deg/s)
+      return true;
     }
   }
+  return false;
 }
