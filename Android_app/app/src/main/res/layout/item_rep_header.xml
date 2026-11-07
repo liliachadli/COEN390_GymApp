@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Column titles of the rep table: same widths as item_rep_row -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="6dp"
+    android:orientation="horizontal">
+
+    <TextView
+        style="@style/Gym.Text.Label"
+        android:layout_width="28dp"
+        android:layout_height="wrap_content"
+        android:text="#"
+        android:textSize="11sp" />
+
+    <TextView
+        style="@style/Gym.Text.Label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="ROM"
+        android:textSize="11sp" />
+
+    <TextView
+        style="@style/Gym.Text.Label"
+        android:layout_width="58dp"
+        android:layout_height="wrap_content"
+        android:text="TUT"
+        android:textSize="11sp" />
+
+    <TextView
+        style="@style/Gym.Text.Label"
+        android:layout_width="52dp"
+        android:layout_height="wrap_content"
+        android:text="SPEED"
+        android:textSize="11sp" />
+</LinearLayout>

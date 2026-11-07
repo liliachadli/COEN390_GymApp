@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Rest time between two sets -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="36dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/bg_tile"
+    android:backgroundTint="@color/gym_cyan_tint"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_timer"
+        app:tint="@color/gym_cyan" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="REST"
+        android:textColor="@color/gym_cyan"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <Chronometer
+        android:id="@+id/rest_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:textColor="@color/gym_cyan"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+</LinearLayout>

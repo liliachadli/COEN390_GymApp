@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One set: number, previous, weight, reps, button -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/bg_card_default"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="10dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="6dp"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:id="@+id/set_number"
+        android:layout_width="34dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-black"
+        android:textColor="@color/gym_text"
+        android:textSize="17sp" />
+
+    <TextView
+        android:id="@+id/set_previous"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="@color/gym_text_secondary"
+        android:textSize="13sp" />
+
+    <EditText
+        android:id="@+id/set_weight"
+        android:layout_width="56dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="4dp"
+        android:background="@drawable/bg_input"
+        android:gravity="center"
+        android:hint="0"
+        android:inputType="number"
+        android:maxLength="4"
+        android:textColor="@color/gym_text"
+        android:textColorHint="@color/gym_text_muted"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/set_reps"
+        android:layout_width="44dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="4dp"
+        android:background="@drawable/bg_input"
+        android:gravity="center"
+        android:hint="—"
+        android:inputType="number"
+        android:maxLength="3"
+        android:textColor="@color/gym_text"
+        android:textColorHint="@color/gym_text_muted"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/set_action"
+        style="@style/Gym.Button.Small"
+        android:layout_width="92dp"
+        android:layout_height="42dp"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        android:textSize="13sp"
+        app:iconPadding="4dp"
+        app:iconSize="14dp" />
+</LinearLayout>
