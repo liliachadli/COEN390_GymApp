@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 2 · History -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gym_bg"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="24dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="20dp">
+
+            <TextView
+                style="@style/Gym.Text.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="History"
+                android:textSize="32sp" />
+
+            <TextView
+                style="@style/Gym.Text.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                android:text="RECENT WORKOUTS" />
+
+            <TextView
+                android:id="@+id/empty_text"
+                style="@style/Gym.Text.Subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No workouts yet. Finish one and it will show here."
+                android:visibility="gone" />
+
+            <!-- One card per workout, added by HistoryActivity -->
+            <LinearLayout
+                android:id="@+id/history_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav"
+        style="@style/Gym.BottomNav"
+        app:menu="@menu/bottom_nav" />
+</LinearLayout>

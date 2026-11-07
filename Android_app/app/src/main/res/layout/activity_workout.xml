@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 1.1 · Workout page -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gym_bg"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/back_button"
+            style="@style/Gym.BackButton" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/motion_chip"
+            style="@style/Gym.Chip"
+            android:text="● Motion" />
+
+        <TextView
+            android:id="@+id/heart_chip"
+            style="@style/Gym.Chip"
+            android:layout_marginStart="6dp"
+            android:text="● Heart" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/finish_button"
+            style="@style/Gym.Button.Small"
+            android:text="Finish" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:gravity="bottom"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/workout_name"
+                    style="@style/Gym.Text.Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxWidth="190dp"
+                    android:maxLines="1" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/edit_name_button"
+                    style="@style/Gym.Button.SmallOutline"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="10dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="Edit"
+                    android:textColor="@color/gym_text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/workout_date"
+                style="@style/Gym.Text.Subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/Gym.Text.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TIME" />
+
+            <Chronometer
+                android:id="@+id/workout_timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:textColor="@color/gym_cyan"
+                android:textSize="28sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="18dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- One card per exercise, added by WorkoutActivity -->
+            <LinearLayout
+                android:id="@+id/exercise_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <TextView
+                android:id="@+id/empty_text"
+                style="@style/Gym.Text.Subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingTop="24dp"
+                android:paddingBottom="24dp"
+                android:text="No exercises yet. Add your first one below." />
+
+            <TextView
+                android:id="@+id/add_exercise_button"
+                style="@style/Gym.Button.Dashed"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="+  Add exercises" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

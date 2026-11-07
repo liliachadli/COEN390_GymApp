@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Column titles above the sets of a past exercise -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="6dp"
+    android:orientation="horizontal"
+    android:paddingStart="12dp"
+    android:paddingEnd="30dp">
+
+    <TextView
+        style="@style/Gym.Text.Label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="SET"
+        android:textSize="11sp" />
+
+    <TextView
+        style="@style/Gym.Text.Label"
+        android:layout_width="64dp"
+        android:layout_height="wrap_content"
+        android:text="TUT"
+        android:textSize="11sp" />
+
+    <TextView
+        style="@style/Gym.Text.Label"
+        android:layout_width="52dp"
+        android:layout_height="wrap_content"
+        android:text="REST"
+        android:textSize="11sp" />
+</LinearLayout>
