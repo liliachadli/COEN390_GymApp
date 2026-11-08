@@ -60,21 +60,20 @@ void loop() {
   current_time = millis();
 
   //Check if APP was and subscribed
-  if(ble_isSubscribed() && !isSubscribed) {
-    timer = millis();
-    isSubscribed = 1;
-  }
-  else if(!ble_isSubscribed){
-    isSubscribed = 0;
-  }
-  
+    if(ble_isSubscribed() && !isSubscribed) {
+      timer = millis();
+      isSubscribed = 1;
+    }
+    else if(!ble_isSubscribed){
+      isSubscribed = 0;
+    }
 
   //Check if sensor moving
-  if (actual_distance + 2.5f >= precedent_distance && actual_distance - 2.5f <= precedent_distance){
-    if (samples_move < 10) {
+  if (actual_distance + 1.5f >= precedent_distance && actual_distance - 1.5f <= precedent_distance){
+    if (samples_move < 15) {
       samples_move++;
     }
-    else if(samples_move == 10){
+    else if(samples_move == 15){
       isMoving = 0;
     }
   }
@@ -84,6 +83,7 @@ void loop() {
     last_time_moved = millis();
   }
   
+
   //Check if sensor going down
   if (actual_distance < precedent_distance){
     if (samples_lower < 5)
@@ -95,6 +95,7 @@ void loop() {
     samples_lower = 0;
     isLowering = 0;
   }
+
 
   //Check if sensor going up
   if (actual_distance > precedent_distance){
@@ -109,10 +110,11 @@ void loop() {
     samples_lift = 0;
     isLifting = 0;
   }
+  
 
   switch (m.getState()) {
     case IDLE: //if for x samples no movement, save start dstance
-      if(!isMoving){  
+      if(!isMoving && !isLifting && !isLowering){  
         start_distance = actual_distance; //Lowest Point. When Plates are down. Still
       }
       start_time = millis();
@@ -126,7 +128,7 @@ void loop() {
       break;
 
     case START:
-      if (!isMoving) {
+      if (!isMoving && !isLifting && !isLowering) {
         m.setState(IDLE);
       }
       if (actual_distance >= ( start_distance + 10.0f)){
@@ -136,12 +138,6 @@ void loop() {
       break;
 
     case LIFT:
-      if(!isMoving){ 
-        if((last_time_moved + 7000) <= current_time ) {
-          m.setState(IDLE);
-        }
-      }
-
       if (topdistance < actual_distance){
         topdistance = actual_distance;
         top_time = millis();
@@ -158,6 +154,22 @@ void loop() {
         }
         setTimeLift(top_time, end_time, d); //Lift Time, Lower Time
         m.setState(LOWER);
+      }
+      else if(!isMoving && !isLifting){ 
+        if((last_time_moved + 7000) <= current_time ) {
+          m.setState(IDLE);
+
+          //Nam: Send idle status to APP  
+          Serial.printf("State: ");
+          Serial.print(m.getState()); 
+
+          //initialize for idle state
+          topdistance = 0;
+          bottom_distance = MAXFLOAT; 
+          refdistance = 0;
+          start_distance = 0;
+          clearData(d);
+        }
       }
 
       break;
@@ -178,10 +190,12 @@ void loop() {
         topdistance = 0;
         bottom_distance = MAXFLOAT; 
         m.setState(LIFT);
-        //Nam: Send rep to APP  
+
+        //Nam: Send rep to APP   
         printdata(d);
+        
       }
-      else if(!isMoving) {
+      else if(!isMoving && !isLowering) {
         if((last_time_moved + 5000) <= current_time ) {
           setROM(topdistance, bottom_distance, d);   //ROM. (top-bottom)
           setTimeLower(end_time, top_time, d);
@@ -190,8 +204,11 @@ void loop() {
           m.setState(IDLE);
 
           //Nam: Send idle status to APP  
-          //Nam: Send last rep to APP   
-          printdata(d); 
+          //Nam: Send last rep to APP
+          Serial.printf("State: ");
+          Serial.print(m.getState()); 
+          Serial.printf(" | ");
+          printdata(d);        
 
           //initialize for idle state
           topdistance = 0;
@@ -203,4 +220,5 @@ void loop() {
       }
       break;
   }
+
 }
