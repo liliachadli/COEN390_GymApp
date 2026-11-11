@@ -1,0 +1,110 @@
+==============================================================================
+SMART GYM TRACKER - SIM-1 RESULTS: WEIGHT-STACK REP DETECTION (Nam)
+Simulation results (expected) and real sensor results (actual)
+Simulation: rep_simulation.py   |   Real: weight-stack tracker serial monitor
+==============================================================================
+
+SET 1: 10 Normal Valid Reps
+
+Simulation results:
+  Timer: 7056 | Lift Time: 1617 | Lower Time: 1813 | Rep count: 1 | ROM: 96.87 | Rep Validity: 1
+  Timer: 10535 | Lift Time: 1470 | Lower Time: 1862 | Rep count: 2 | ROM: 96.83 | Rep Validity: 1
+  Timer: 13965 | Lift Time: 1372 | Lower Time: 1960 | Rep count: 3 | ROM: 101.91 | Rep Validity: 1
+  Timer: 17248 | Lift Time: 1372 | Lower Time: 2156 | Rep count: 4 | ROM: 96.87 | Rep Validity: 1
+  Timer: 20482 | Lift Time: 1372 | Lower Time: 1715 | Rep count: 5 | ROM: 101.88 | Rep Validity: 1
+  Timer: 23961 | Lift Time: 1764 | Lower Time: 1862 | Rep count: 6 | ROM: 101.93 | Rep Validity: 1
+  Timer: 27195 | Lift Time: 1323 | Lower Time: 1617 | Rep count: 7 | ROM: 104.19 | Rep Validity: 1
+  Timer: 30576 | Lift Time: 1911 | Lower Time: 1568 | Rep count: 8 | ROM: 99.37 | Rep Validity: 1
+  Timer: 33761 | Lift Time: 1372 | Lower Time: 1568 | Rep count: 9 | ROM: 96.85 | Rep Validity: 1
+  State: 0 | Timer: 41405 | Lift Time: 1666 | Lower Time: 2254 | Rep count: 10 | ROM: 96.87 | Rep Validity: 1
+
+Real results:
+  Timer: 8936 | Lift Time: 1167 | Lower Time: 1835 | Rep count: 1 | ROM: 102.74 | Rep Validity: 1
+  Timer: 12616 | Lift Time: 1991 | Lower Time: 1689 | Rep count: 2 | ROM: 92.75 | Rep Validity: 1
+  Timer: 15908 | Lift Time: 1555 | Lower Time: 1931 | Rep count: 3 | ROM: 92.79 | Rep Validity: 1
+  Timer: 19346 | Lift Time: 1701 | Lower Time: 1786 | Rep count: 4 | ROM: 97.75 | Rep Validity: 1
+  Timer: 22640 | Lift Time: 1361 | Lower Time: 1641 | Rep count: 5 | ROM: 92.77 | Rep Validity: 1
+  Timer: 25933 | Lift Time: 1555 | Lower Time: 1690 | Rep count: 6 | ROM: 90.28 | Rep Validity: 1
+  Timer: 29467 | Lift Time: 1506 | Lower Time: 2126 | Rep count: 7 | ROM: 92.77 | Rep Validity: 1
+  Timer: 32663 | Lift Time: 1651 | Lower Time: 1593 | Rep count: 8 | ROM: 92.77 | Rep Validity: 1
+  Timer: 35908 | Lift Time: 1603 | Lower Time: 1642 | Rep count: 9 | ROM: 92.77 | Rep Validity: 1
+  State: 0 | Timer: 43070 | Lift Time: 1554 | Lower Time: 1690 | Rep count: 10 | ROM: 90.27 | Rep Validity: 1
+
+Simulation: 10 valid / 0 invalid, average lift 1524 ms, average lower 1838 ms
+Real:       10 valid / 0 invalid, average lift 1564 ms, average lower 1762 ms
+Match: YES
+------------------------------------------------------------------------------
+
+SET 2: 6 Slow Reps
+
+Simulation results:
+  Timer: 11466 | Lift Time: 3332 | Lower Time: 3038 | Rep count: 1 | ROM: 104.47 | Rep Validity: 1
+  Timer: 19159 | Lift Time: 3822 | Lower Time: 3675 | Rep count: 2 | ROM: 96.85 | Rep Validity: 1
+  Timer: 26509 | Lift Time: 4214 | Lower Time: 4018 | Rep count: 3 | ROM: 101.95 | Rep Validity: 1
+  Timer: 33761 | Lift Time: 3136 | Lower Time: 4067 | Rep count: 4 | ROM: 101.93 | Rep Validity: 1
+  Timer: 41405 | Lift Time: 2891 | Lower Time: 4508 | Rep count: 5 | ROM: 99.41 | Rep Validity: 1
+  State: 0 | Timer: 52479 | Lift Time: 3773 | Lower Time: 3283 | Rep count: 6 | ROM: 104.49 | Rep Validity: 1
+
+Real results:
+  Timer: 15503 | Lift Time: 3883 | Lower Time: 4404 | Rep count: 1 | ROM: 122.68 | Rep Validity: 1
+  Timer: 23160 | Lift Time: 4464 | Lower Time: 3532 | Rep count: 2 | ROM: 110.24 | Rep Validity: 1
+  Timer: 30476 | Lift Time: 3931 | Lower Time: 3628 | Rep count: 3 | ROM: 112.73 | Rep Validity: 1
+  Timer: 37358 | Lift Time: 3447 | Lower Time: 3338 | Rep count: 4 | ROM: 112.73 | Rep Validity: 1
+  Timer: 44531 | Lift Time: 3592 | Lower Time: 3531 | Rep count: 5 | ROM: 110.24 | Rep Validity: 1
+  State: 0 | Timer: 61778 | Lift Time: 3351 | Lower Time: 3967 | Rep count: 6 | ROM: 112.73 | Rep Validity: 1
+
+Simulation: 6 valid / 0 invalid, average lift 3528 ms, average lower 3765 ms
+Real:       6 valid / 0 invalid, average lift 3778 ms, average lower 3733 ms
+Match: YES
+------------------------------------------------------------------------------
+
+SET 3: 13 Fast Reps: 3 NonValid Reps + 10 Valid Reps
+
+Simulation results:
+  Timer: 5537 | Lift Time: 980 | Lower Time: 931 | Rep count: 1 | ROM: 99.20 | Rep Validity: 1
+  Timer: 7742 | Lift Time: 1274 | Lower Time: 784 | Rep count: 2 | ROM: 101.88 | Rep Validity: 1
+  Timer: 9947 | Lift Time: 1421 | Lower Time: 931 | Rep count: 3 | ROM: 96.81 | Rep Validity: 1
+  Timer: 12103 | Lift Time: 1029 | Lower Time: 1127 | Rep count: 3 | ROM: 58.77 | Rep Validity: 0
+  Timer: 14455 | Lift Time: 1323 | Lower Time: 1078 | Rep count: 4 | ROM: 101.88 | Rep Validity: 1
+  Timer: 16709 | Lift Time: 1029 | Lower Time: 1029 | Rep count: 4 | ROM: 58.77 | Rep Validity: 0
+  Timer: 19061 | Lift Time: 1519 | Lower Time: 833 | Rep count: 5 | ROM: 99.39 | Rep Validity: 1
+  Timer: 21315 | Lift Time: 1323 | Lower Time: 1225 | Rep count: 6 | ROM: 96.87 | Rep Validity: 1
+  Timer: 23471 | Lift Time: 784 | Lower Time: 1323 | Rep count: 7 | ROM: 99.34 | Rep Validity: 1
+  Timer: 25676 | Lift Time: 1176 | Lower Time: 931 | Rep count: 7 | ROM: 60.94 | Rep Validity: 0
+  Timer: 27979 | Lift Time: 1225 | Lower Time: 1078 | Rep count: 8 | ROM: 101.77 | Rep Validity: 1
+  Timer: 30282 | Lift Time: 1372 | Lower Time: 980 | Rep count: 9 | ROM: 101.89 | Rep Validity: 1
+  State: 0 | Timer: 36750 | Lift Time: 980 | Lower Time: 2156 | Rep count: 10 | ROM: 104.35 | Rep Validity: 1
+
+Real results:
+  Timer: 15610 | Lift Time: 926 | Lower Time: 1057 | Rep count: 1 | ROM: 122.47 | Rep Validity: 1
+  Timer: 18127 | Lift Time: 1314 | Lower Time: 1252 | Rep count: 2 | ROM: 127.59 | Rep Validity: 1
+  Timer: 20691 | Lift Time: 1362 | Lower Time: 960 | Rep count: 3 | ROM: 112.47 | Rep Validity: 1
+  Timer: 22869 | Lift Time: 1311 | Lower Time: 1109 | Rep count: 3 | ROM: 75.37 | Rep Validity: 0
+  Timer: 25191 | Lift Time: 1216 | Lower Time: 1107 | Rep count: 4 | ROM: 107.63 | Rep Validity: 1
+  Timer: 27320 | Lift Time: 1213 | Lower Time: 1254 | Rep count: 4 | ROM: 65.37 | Rep Validity: 0
+  Timer: 29498 | Lift Time: 1071 | Lower Time: 768 | Rep count: 5 | ROM: 114.97 | Rep Validity: 1
+  Timer: 31774 | Lift Time: 1265 | Lower Time: 962 | Rep count: 6 | ROM: 115.09 | Rep Validity: 1
+  Timer: 33854 | Lift Time: 1119 | Lower Time: 913 | Rep count: 7 | ROM: 110.10 | Rep Validity: 1
+  Timer: 35499 | Lift Time: 1067 | Lower Time: 626 | Rep count: 7 | ROM: 62.84 | Rep Validity: 0
+  Timer: 37433 | Lift Time: 1217 | Lower Time: 960 | Rep count: 8 | ROM: 117.41 | Rep Validity: 1
+  Timer: 39516 | Lift Time: 1071 | Lower Time: 914 | Rep count: 9 | ROM: 112.68 | Rep Validity: 1
+  State: 0 | Timer: 46095 | Lift Time: 1217 | Lower Time: 1302 | Rep count: 10 | ROM: 112.68 | Rep Validity: 1
+
+Simulation: 10 valid / 3 invalid, average lift 1187 ms, average lower 1108 ms
+Real:       10 valid / 3 invalid, average lift 1182 ms, average lower 1014 ms
+Match: YES
+------------------------------------------------------------------------------
+
+==============================================================================
+SUMMARY
+==============================================================================
+
+  Set                                               Simulation      Real
+  10 Normal Valid Reps                                  10 / 0    10 / 0
+  6 Slow Reps                                            6 / 0     6 / 0
+  13 Fast Reps: 3 NonValid Reps + 10 Valid Reps         10 / 3    10 / 3
+
+Conclusion:
+  The simulation and the real tracker give the same rep counts and flag the same
+  partial reps as invalid. The lift and lower times are close. No threshold changes
+  are needed for rep counting.
