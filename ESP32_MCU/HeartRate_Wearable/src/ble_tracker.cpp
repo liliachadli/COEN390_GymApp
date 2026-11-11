@@ -9,7 +9,7 @@ static BLECharacteristic *dataChar = nullptr;
 static BLE2902 *dataCccd = nullptr;
 static bool connected = false;
 static uint32_t disconnects = 0;
-static char deviceName[12];
+static char deviceName[16];
 
 class ServerCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer *server) override {
@@ -27,7 +27,7 @@ class ServerCallbacks : public BLEServerCallbacks {
 
 void ble_begin() {
   uint64_t mac = ESP.getEfuseMac();
-  snprintf(deviceName, sizeof(deviceName), "SGT-%02X%02X",
+  snprintf(deviceName, sizeof(deviceName), BLE_DEVICE_PREFIX "-%02X%02X",
            (uint8_t)(mac >> 32), (uint8_t)(mac >> 40));
 
   BLEDevice::init(deviceName);
@@ -35,7 +35,7 @@ void ble_begin() {
   BLESecurity *sec = new BLESecurity();
   sec->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_BOND);
   sec->setCapability(ESP_IO_CAP_NONE);
-  // without this the stack tries to derive a classic BT key and pairing fails on the C3
+  // BLE keys only, the C3 can't make a classic BT key
   sec->setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
   sec->setRespEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
 
@@ -54,11 +54,11 @@ void ble_begin() {
 
   BLECharacteristic *infoChar = service->createCharacteristic(
       BLE_INFO_UUID, BLECharacteristic::PROPERTY_READ);
-  infoChar->setValue("SmartGymTracker;proto=1;pkt=40");
+  infoChar->setValue("SmartGymTracker-HR;proto=2;pkt=10");
 
   service->start();
 
-  // name goes in the scan response, not enough room for it with the UUID
+  // UUID in advertisement, name in scan response
   BLEAdvertising *adv = BLEDevice::getAdvertising();
 
   BLEAdvertisementData advData;
@@ -86,7 +86,7 @@ bool ble_isSubscribed() {
   return connected && dataCccd != nullptr && dataCccd->getNotifications();
 }
 
-bool ble_send(const RawPacket &p) {
+bool ble_send(const HeartRatePacket &p) {
   if (!ble_isSubscribed()) return false;
   dataChar->setValue((uint8_t *)&p, sizeof(p));
   dataChar->notify();

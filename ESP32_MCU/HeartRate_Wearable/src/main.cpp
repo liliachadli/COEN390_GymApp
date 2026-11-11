@@ -5,8 +5,10 @@
 #include "max30102_config.h"
 #include "mpu6050.h"
 #include "heart_rate.h"
+#include "ble_packet.h"
+#include "ble_tracker.h"
 
-// output: HR,seq,timeMs,bpm,quality
+// serial: HR,seq,timeMs,bpm,quality
 
 const uint32_t HR_PRINT_INTERVAL_MS = 1000;
 
@@ -22,6 +24,13 @@ uint32_t hrSeq = 0;
 uint32_t lastMotionMs = 0;
 bool     motionSeen = false;
 float    lastGoodBpm = 0;   // last good BPM while not moving
+bool     wasSubscribed = false;
+
+void resetTimer() {
+  startMs = millis();
+  nextPrintTimeMs = HR_PRINT_INTERVAL_MS;
+  hrSeq = 0;
+}
 
 bool bigMotion(const MotionSample &m) {
   float a = sqrtf(m.accel[0] * m.accel[0] + m.accel[1] * m.accel[1] + m.accel[2] * m.accel[2]);
@@ -50,11 +59,20 @@ void setup() {
   mpu6050_init();
   Serial.println("MAX30102 ready, place your finger on the sensor");
 
-  startMs = millis();
-  nextPrintTimeMs = HR_PRINT_INTERVAL_MS;
+  ble_begin();
+
+  resetTimer();
 }
 
 void loop() {
+  // reset timer and sequence on subscribe
+  bool subscribed = ble_isSubscribed();
+  if (subscribed && !wasSubscribed) {
+    resetTimer();
+    Serial.println("BLE: phone subscribed, timer reset");
+  }
+  wasSubscribed = subscribed;
+
   MotionSample m;
   if (mpu6050_read(m) && bigMotion(m)) {
     motionSeen = true;
@@ -82,6 +100,9 @@ void loop() {
 
     Serial.printf("HR,%lu,%lu,%d,%d\n",
                   (unsigned long)hrSeq, (unsigned long)nextPrintTimeMs, bpm, quality);
+
+    HeartRatePacket p = ble_buildPacket(hrSeq, nextPrintTimeMs, bpm, good);
+    if (ble_send(p)) ble_printPacket(p);
 
     hrSeq++;
     nextPrintTimeMs += HR_PRINT_INTERVAL_MS;

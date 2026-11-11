@@ -15,10 +15,15 @@ constexpr int      HISTORY          = 4;
 constexpr float    ACCEPT_RANGE     = 0.25f;
 constexpr int      MAX_REJECTS      = 3;
 constexpr float    QUALITY_SECONDS  = 3.0f;
+constexpr uint32_t SATURATION_LEVEL = 260000;   // 18-bit ADC max is 262143
+constexpr float    SPIKE_FRACTION   = 0.10f;    // pulse is ~1% of DC, a 10% jump is not a pulse
+constexpr float    MAX_BAD_SECONDS  = 0.5f;     // this long of bad samples resets the algorithm
+constexpr bool     PRINT_PEAKS      = true;     // PEAK,timeMs,intervalMs on serial
 
 constexpr uint32_t SETTLE_SAMPLES  = (uint32_t)(SETTLE_SECONDS * FS);
 constexpr uint32_t MIN_PEAK_GAP    = (uint32_t)(FS * 60.0f / MAX_BPM);
 constexpr uint32_t QUALITY_SAMPLES = (uint32_t)(QUALITY_SECONDS * FS);
+constexpr uint32_t MAX_BAD_SAMPLES = (uint32_t)(MAX_BAD_SECONDS * FS);
 
 static float b0, b1, b2, a1, a2;
 static bool  coeffsReady = false;
@@ -33,6 +38,7 @@ static bool     havePeak = false;
 static uint32_t lastPeak = 0;
 static bool     haveRef = false;
 static uint32_t refBeat = 0;
+static uint32_t badRun = 0;
 
 static float    history[HISTORY];
 static int      count = 0, idx = 0;
@@ -109,6 +115,7 @@ void hr_reset() {
   env = 0;
   havePeak = false;
   haveRef = false;
+  badRun = 0;
   clearHistory();
 }
 
@@ -126,6 +133,15 @@ void hr_addSample(uint32_t ir) {
   }
   n++;
 
+  // skip saturated samples and sudden jumps, too many in a row = start over
+  const bool saturated = ir >= SATURATION_LEVEL;
+  const bool spike = fabsf((float)ir - dc) > SPIKE_FRACTION * dc;
+  if (saturated || spike) {
+    if (++badRun >= MAX_BAD_SAMPLES) hr_reset();
+    return;
+  }
+  badRun = 0;
+
   // inverted because the pulse makes IR dip
   dc += DC_ALPHA * ((float)ir - dc);
   const float ac = dc - (float)ir;
@@ -142,6 +158,11 @@ void hr_addSample(uint32_t ir) {
                         prev1 > 0 && prev1 > PEAK_FRACTION * env;
     const uint32_t peak = n - 1;
     if (isPeak && (!havePeak || peak - lastPeak >= MIN_PEAK_GAP)) {
+      if (PRINT_PEAKS) {
+        Serial.printf("PEAK,%lu,%lu\n",
+                      (unsigned long)(peak * 1000.0f / FS),
+                      havePeak ? (unsigned long)((peak - lastPeak) * 1000.0f / FS) : 0UL);
+      }
       havePeak = true;
       lastPeak = peak;
       handlePeak(peak);

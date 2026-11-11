@@ -2,6 +2,7 @@
 #include "bm11010.h"
 #include "bm11010_states.h"
 #include "ble_tracker.h"
+#include "ble_packet.h"
 
 #define SONAR_PIN 3
 
@@ -36,6 +37,34 @@ int samples_lower = 0;
 
 bool isSubscribed = 0;
 
+uint16_t bleSeq = 0;
+int lastSentState = -1;   // -1 = send state on subscribe
+
+uint32_t bleTimeMs() {
+  return millis() - timer;
+}
+
+void sendRep() {
+  RepPacket p = ble_buildRepPacket(bleSeq, bleTimeMs(), d.rep_count, d.valid_rep,
+                                   m.getState(), d.ROM, d.lift_time, d.lower_time);
+  if (ble_send(p)) {
+    ble_printPacket(p);
+    bleSeq++;
+  }
+}
+
+void sendStateIfChanged() {
+  int state = m.getState();
+  if (state == lastSentState) return;
+
+  StatePacket p = ble_buildStatePacket(bleSeq, bleTimeMs(), state);
+  if (ble_send(p)) {
+    ble_printPacket(p);
+    bleSeq++;
+    lastSentState = state;
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   delay(3000);
@@ -48,6 +77,8 @@ void setup() {
   actual_distance = s.distanceCm; 
   start_distance = actual_distance;
   m.setState(IDLE);
+
+  ble_begin();
 }
 
 
@@ -59,12 +90,15 @@ void loop() {
   actual_distance = s.distanceCm;
   current_time = millis();
 
-  //Check if APP was and subscribed
+  // reset timer and sequence on subscribe
     if(ble_isSubscribed() && !isSubscribed) {
       timer = millis();
+      bleSeq = 0;
+      lastSentState = -1;
       isSubscribed = 1;
+      Serial.println("BLE: phone subscribed, timer reset");
     }
-    else if(!ble_isSubscribed){
+    else if(!ble_isSubscribed()){
       isSubscribed = 0;
     }
 
@@ -159,7 +193,6 @@ void loop() {
         if((last_time_moved + 7000) <= current_time ) {
           m.setState(IDLE);
 
-          //Nam: Send idle status to APP  
           Serial.printf("State: ");
           Serial.print(m.getState()); 
 
@@ -191,9 +224,9 @@ void loop() {
         bottom_distance = MAXFLOAT; 
         m.setState(LIFT);
 
-        //Nam: Send rep to APP   
         printdata(d);
-        
+        sendRep();
+
       }
       else if(!isMoving && !isLowering) {
         if((last_time_moved + 5000) <= current_time ) {
@@ -203,12 +236,11 @@ void loop() {
           setCurrentTime(current_time, timer, d);
           m.setState(IDLE);
 
-          //Nam: Send idle status to APP  
-          //Nam: Send last rep to APP
           Serial.printf("State: ");
           Serial.print(m.getState()); 
           Serial.printf(" | ");
-          printdata(d);        
+          printdata(d);
+          sendRep();
 
           //initialize for idle state
           topdistance = 0;
@@ -221,4 +253,5 @@ void loop() {
       break;
   }
 
+  sendStateIfChanged();
 }

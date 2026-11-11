@@ -1,32 +1,29 @@
 #pragma once
 #include <stdint.h>
 
-// BLE-1.1 - Sprint 1 BLE data structure
+// Heart rate wearable BLE protocol
 
-// Service and characteristic UUIDs
-#define BLE_SERVICE_UUID  "6e7a0001-5c3b-4f1e-9a2d-3b8c1f0e7a10"
-#define BLE_DATA_UUID     "6e7a0002-5c3b-4f1e-9a2d-3b8c1f0e7a10"  // read + notify
-#define BLE_INFO_UUID     "6e7a0003-5c3b-4f1e-9a2d-3b8c1f0e7a10"  // read, text
+#define BLE_SERVICE_UUID  "6e7a1001-5c3b-4f1e-9a2d-3b8c1f0e7a10"
+#define BLE_DATA_UUID     "6e7a1002-5c3b-4f1e-9a2d-3b8c1f0e7a10"  // read + notify
+#define BLE_INFO_UUID     "6e7a1003-5c3b-4f1e-9a2d-3b8c1f0e7a10"  // read, text
 
-#define BLE_PROTOCOL_VERSION 1
+#define BLE_DEVICE_PREFIX "SGT-HR"
 
-// Packet types. Later sprints add new types (rep count, ROM, TUT,
-// rest time, BPM) without changing the Sprint 1 raw packet.
-#define BLE_PKT_RAW_SAMPLE 0x01
+#define BLE_PROTOCOL_VERSION 2
 
-// One packet every 20 ms = 50 packets per second
-#define BLE_SEND_INTERVAL_MS 20
+// Packet types
+#define BLE_PKT_HEART_RATE 0x02
 
-// Sprint 1 raw packet, 40 bytes, little-endian
-struct __attribute__((packed)) RawPacket {
-  uint8_t  version;      // byte 0      protocol version (1)
-  uint8_t  type;         // byte 1      0x01 = raw sample
-  uint16_t sequence;     // bytes 2-3   +1 every packet, used to find dropped packets
-  uint32_t timeMs;       // bytes 4-7   ms since ESP32 boot
-  float    accel[3];     // bytes 8-19  accel X, Y, Z (g)
-  float    gyro[3];      // bytes 20-31 gyro X, Y, Z (deg/s)
-  uint32_t ir;           // bytes 32-35 MAX30102 IR count
-  uint32_t red;          // bytes 36-39 MAX30102 Red count
+#define BLE_SEND_INTERVAL_MS 1000
+
+// 10 bytes, little-endian
+struct __attribute__((packed)) HeartRatePacket {
+  uint8_t  version;      // byte 0      protocol version (2)
+  uint8_t  type;         // byte 1      0x02 = heart rate
+  uint16_t sequence;     // bytes 2-3   +1 every packet
+  uint32_t timeMs;       // bytes 4-7   ms since subscribe
+  uint8_t  bpm;          // byte 8      0 = no reading yet
+  uint8_t  quality;      // byte 9      1 = good, 0 = bad
 };
 
-static_assert(sizeof(RawPacket) == 40, "RawPacket must be 40 bytes");
+static_assert(sizeof(HeartRatePacket) == 10, "HeartRatePacket must be 10 bytes");
