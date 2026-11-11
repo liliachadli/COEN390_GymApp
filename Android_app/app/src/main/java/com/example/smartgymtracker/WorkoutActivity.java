@@ -53,6 +53,7 @@ public class WorkoutActivity extends AppCompatActivity {
         findViewById(R.id.back_button).setOnClickListener(v -> finish());
         findViewById(R.id.edit_name_button).setOnClickListener(v -> editName());
         findViewById(R.id.finish_button).setOnClickListener(v -> askToFinish());
+        findViewById(R.id.cancel_workout_button).setOnClickListener(v -> askToCancel());
         findViewById(R.id.add_exercise_button).setOnClickListener(v ->
                 startActivity(new Intent(this, ChooseExerciseActivity.class)));
     }
@@ -136,10 +137,39 @@ public class WorkoutActivity extends AppCompatActivity {
     }
 
     private void askToFinish() {
+        if (!hasFinishedSet()) {
+            new AlertDialog.Builder(this)
+                    .setTitle("No finished sets")
+                    .setMessage("Finish at least one set, or cancel the workout.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
         new AlertDialog.Builder(this)
                 .setTitle("Finish workout?")
                 .setMessage("Sets that are not done will not be saved.")
                 .setPositiveButton("Finish", (dialog, which) -> finishWorkout())
+                .setNegativeButton("Keep going", null)
+                .show();
+    }
+
+    private boolean hasFinishedSet() {
+        for (ExerciseEntry exercise : WorkoutSession.exercises) {
+            if (exercise.getDoneCount() > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void askToCancel() {
+        new AlertDialog.Builder(this)
+                .setTitle("Cancel this workout?")
+                .setMessage("Nothing will be saved.")
+                .setPositiveButton("Cancel workout", (dialog, which) -> {
+                    WorkoutSession.reset();
+                    finish();
+                })
                 .setNegativeButton("Keep going", null)
                 .show();
     }
