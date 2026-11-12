@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -30,6 +31,10 @@ public class HistoryActivity extends AppCompatActivity {
         super.onResume();
         NavBar.setup(this, R.id.nav_history);
         showWorkouts();
+
+        WorkoutHistory.loadWorkouts(()->{
+            showWorkouts();
+        });
     }
 
     private void showWorkouts() {
@@ -53,8 +58,12 @@ public class HistoryActivity extends AppCompatActivity {
                 ExerciseEntry exercise = workout.exercises.get(e);
                 View line = LayoutInflater.from(this).inflate(R.layout.item_history_line, lines, false);
                 ((TextView) line.findViewById(R.id.line_name)).setText(exercise.name);
-                ((TextView) line.findViewById(R.id.line_sets)).setText(
-                        exercise.sets.size() + " × " + exercise.sets.get(0).reps);
+                if(!exercise.sets.isEmpty()){
+                    ((TextView) line.findViewById(R.id.line_sets)).setText(
+                            exercise.sets.size() + " × " + exercise.sets.get(0).reps);
+                } else{
+                    ((TextView) line.findViewById(R.id.line_sets)).setText("0 × 0");
+                }
                 lines.addView(line);
             }
 
@@ -64,8 +73,14 @@ public class HistoryActivity extends AppCompatActivity {
             }
             ((TextView) card.findViewById(R.id.history_footer)).setText(footer);
 
-            int index = i;
+
             card.setOnClickListener(v -> {
+                int index = WorkoutHistory.workouts.indexOf(workout);
+                if (index == -1) {
+                    Toast.makeText(this, "Workout not found", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 Intent intent = new Intent(this, PastWorkoutActivity.class);
                 intent.putExtra(PastWorkoutActivity.EXTRA_WORKOUT_INDEX, index);
                 startActivity(intent);

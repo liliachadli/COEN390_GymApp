@@ -55,6 +55,11 @@ public class DashboardActivity extends AppCompatActivity {
         super.onResume();
         NavBar.setup(this, R.id.nav_workout);
         refresh();
+
+        // Load workouts from the database
+        WorkoutHistory.loadWorkouts(() ->{
+            refresh();
+        });
     }
 
     private void refresh() {

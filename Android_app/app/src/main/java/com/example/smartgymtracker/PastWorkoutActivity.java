@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,7 +26,7 @@ public class PastWorkoutActivity extends AppCompatActivity {
         setContentView(R.layout.activity_past_workout);
 
         int workoutIndex = getIntent().getIntExtra(EXTRA_WORKOUT_INDEX, 0);
-        if (workoutIndex >= WorkoutHistory.workouts.size()) {
+        if (workoutIndex < 0 || workoutIndex >= WorkoutHistory.workouts.size()) {
             finish();
             return;
         }
@@ -72,8 +73,14 @@ public class PastWorkoutActivity extends AppCompatActivity {
                 int exerciseIndex = e;
                 int setIndex = s;
                 row.setOnClickListener(v -> {
+                    int currentIndex = WorkoutHistory.workouts.indexOf(workout);
+
+                    if(currentIndex == -1){
+                        Toast.makeText(this, "Workout not found", Toast.LENGTH_LONG).show();
+                        return;
+                    }
                     Intent intent = new Intent(this, PastSetActivity.class);
-                    intent.putExtra(EXTRA_WORKOUT_INDEX, workoutIndex);
+                    intent.putExtra(EXTRA_WORKOUT_INDEX, currentIndex);
                     intent.putExtra(WorkoutActivity.EXTRA_EXERCISE_INDEX, exerciseIndex);
                     intent.putExtra(WorkoutActivity.EXTRA_SET_INDEX, setIndex);
                     startActivity(intent);

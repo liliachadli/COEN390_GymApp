@@ -3,6 +3,7 @@ package com.example.smartgymtracker;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Chronometer;
@@ -10,7 +11,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,9 +28,10 @@ public class WorkoutActivity extends AppCompatActivity {
 
     public static final String EXTRA_EXERCISE_INDEX = "exerciseIndex";
     public static final String EXTRA_SET_INDEX = "setIndex";
-
     private TextView nameText;
     private LinearLayout exerciseList;
+    private WorkoutRepository workoutRepository;
+    private boolean savingWorkout = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,13 +54,38 @@ public class WorkoutActivity extends AppCompatActivity {
         timer.setBase(WorkoutSession.startElapsed);
         timer.start();
 
-        findViewById(R.id.back_button).setOnClickListener(v -> finish());
+        findViewById(R.id.back_button).setOnClickListener(v -> {
+            if(savingWorkout) {
+                Toast.makeText(this, "Workout is being saved", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            finish();
+
+        });
         findViewById(R.id.edit_name_button).setOnClickListener(v -> editName());
         findViewById(R.id.finish_button).setOnClickListener(v -> askToFinish());
         findViewById(R.id.cancel_workout_button).setOnClickListener(v -> askToCancel());
-        findViewById(R.id.add_exercise_button).setOnClickListener(v ->
-                startActivity(new Intent(this, ChooseExerciseActivity.class)));
+        findViewById(R.id.add_exercise_button).setOnClickListener(v ->{
+            if(savingWorkout) {
+                Toast.makeText(this, "Workout is being saved", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            startActivity(new Intent(this, ChooseExerciseActivity.class));
+        });
+        workoutRepository = new WorkoutRepository();
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if(savingWorkout) {
+                    Toast.makeText(WorkoutActivity.this, "Workout is being saved", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                setEnabled(false);
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
     }
+
 
     @Override
     protected void onResume() {
@@ -113,12 +142,20 @@ public class WorkoutActivity extends AppCompatActivity {
     }
 
     private void openExercise(int index) {
+        if(savingWorkout) {
+            Toast.makeText(this, "Workout is being saved", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Intent intent = new Intent(this, ExerciseDetailsActivity.class);
         intent.putExtra(EXTRA_EXERCISE_INDEX, index);
         startActivity(intent);
     }
 
     private void editName() {
+        if(savingWorkout) {
+            Toast.makeText(this, "Workout is being saved", Toast.LENGTH_SHORT).show();
+            return;
+        }
         EditText input = new EditText(this);
         input.setText(WorkoutSession.name);
         input.setSelection(input.getText().length());
@@ -126,6 +163,10 @@ public class WorkoutActivity extends AppCompatActivity {
                 .setTitle("Workout name")
                 .setView(input)
                 .setPositiveButton("Save", (dialog, which) -> {
+                    if(savingWorkout){
+                        Toast.makeText(this, "Workout is being saved", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     String name = input.getText().toString().trim();
                     if (!name.isEmpty()) {
                         WorkoutSession.name = name;
@@ -163,10 +204,18 @@ public class WorkoutActivity extends AppCompatActivity {
     }
 
     private void askToCancel() {
+        if(savingWorkout){
+            Toast.makeText(this, "Workout is being saved", Toast.LENGTH_SHORT).show();
+            return;
+        }
         new AlertDialog.Builder(this)
                 .setTitle("Cancel this workout?")
                 .setMessage("Nothing will be saved.")
                 .setPositiveButton("Cancel workout", (dialog, which) -> {
+                    if(savingWorkout){
+                        Toast.makeText(this, "Workout is being saved", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     WorkoutSession.reset();
                     finish();
                 })
@@ -176,11 +225,37 @@ public class WorkoutActivity extends AppCompatActivity {
 
     // Saves the workout and opens its summary (APP-1.9)
     private void finishWorkout() {
-        WorkoutHistory.saveCurrentWorkout();
-        WorkoutSession.reset();
+        if(savingWorkout){
+            return;
+        }
+        savingWorkout = true;
+        PastWorkout workout = WorkoutHistory.saveCurrentWorkout();
+        workoutRepository.saveWorkout(workout, new WorkoutRepository.saveWorkoutCallback() {
 
+            @Override
+            public void onSuccess() {
+                WorkoutSession.reset();
+                openWorkoutSummary(workout);
+            }
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("WorkoutActivity", "Failed to save workout", e);
+                Toast.makeText(WorkoutActivity.this, "Failed to save workout", Toast.LENGTH_LONG).show();
+                savingWorkout = false;
+                WorkoutHistory.workouts.remove(workout);
+            }
+        });
+    }
+
+    private void openWorkoutSummary(PastWorkout workout){
         Intent intent = new Intent(this, PastWorkoutActivity.class);
-        intent.putExtra(PastWorkoutActivity.EXTRA_WORKOUT_INDEX, 0);
+        int index = WorkoutHistory.workouts.indexOf(workout);
+        if(index == -1){
+            Toast.makeText(this, "Workout summary unavailable", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+        intent.putExtra(PastWorkoutActivity.EXTRA_WORKOUT_INDEX, index);
         startActivity(intent);
         finish();
     }

@@ -12,7 +12,8 @@ public class SetEntry {
     public long restSec = -1;  // rest taken after this set (-1 = not known yet)
     public List<RepData> repList = new ArrayList<>();
     public List<Integer> bpmList = new ArrayList<>();
-
+    public Integer savedAverageBpm = null;
+    public Integer savedMaxBpm = null;
     public SetEntry(int weight) {
         this.weight = weight;
     }
@@ -37,6 +38,9 @@ public class SetEntry {
     }
 
     public int getAverageBpm() {
+        if(savedAverageBpm != null && bpmList.isEmpty()){
+            return savedAverageBpm;
+        }
         if (bpmList.isEmpty()) {
             return 0;
         }
@@ -48,6 +52,9 @@ public class SetEntry {
     }
 
     public int getMaxBpm() {
+        if(savedMaxBpm != null && bpmList.isEmpty()){
+            return savedMaxBpm;
+        }
         int max = 0;
         for (int bpm : bpmList) {
             max = Math.max(max, bpm);
