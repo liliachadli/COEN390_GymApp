@@ -54,7 +54,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void registerUser() {
         String email = emailRegisterInput.getText().toString().trim();
-        String domain = email.substring(email.lastIndexOf("@") + 1);
         String password = passwordRegisterInput.getText().toString();
         String confirmPassword = passwordConfirmRegisterInput.getText().toString();
 
@@ -70,14 +69,9 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Check if the domain specifically matches an appropriate domain
-        if( !domain.equals("gmail.com") &&
-                !domain.equals("outlook.com") &&
-                !domain.equals("hotmail.com") &&
-                !domain.equals("yahoo.com") &&
-                !domain.equals("icloud.com") &&
-                !domain.equals("live.concordia.ca")){
-            Toast.makeText(this, "Invalid email domain", Toast.LENGTH_LONG).show();
+        // Check if password is at least 6 characters long
+        if(password.length() < 6){
+            Toast.makeText(this, "Password must be at least 6 characters long", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -86,6 +80,9 @@ public class RegisterActivity extends AppCompatActivity {
             Toast.makeText(this, "Passwords do not match", Toast.LENGTH_LONG).show();
             return;
         }
+
+        // Prevent multiple registration requests
+        createAccountButton.setEnabled(false);
 
         // Create and store user accounts in the database
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
@@ -97,20 +94,36 @@ public class RegisterActivity extends AppCompatActivity {
                     userData.put("email", email);
                     db.collection("users").document(uid).set(userData)
                             .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "Account created successfully", Toast.LENGTH_LONG).show();
-                                auth.signOut();
-                                finish();
+                                user.sendEmailVerification().addOnSuccessListener(unused -> {
+                                    Toast.makeText(this, "Verification email sent", Toast.LENGTH_LONG).show();
+                                    auth.signOut();
+                                    finish();
+                                }).addOnFailureListener(e -> {
+                                    Toast.makeText(this, "Failed to send verification email", Toast.LENGTH_LONG).show();
+                                    auth.signOut();
+                                    finish();
+                                });
                             })
                             .addOnFailureListener(e -> {
-                                Toast.makeText(this, "Failed to save user information", Toast.LENGTH_LONG).show();
+                                user.delete().addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(this, "Registration failed. Try again", Toast.LENGTH_LONG).show();
+                                    createAccountButton.setEnabled(true);
+                                        }
+                                ).addOnFailureListener(e1 -> {
+                                    Toast.makeText(this, "Account created but setup failed", Toast.LENGTH_LONG).show();
+                                    createAccountButton.setEnabled(true);
+                                });
                             });
+
                 }
                 else{
                     Toast.makeText(this, "Failed to retrieve user information", Toast.LENGTH_LONG).show();
+                    createAccountButton.setEnabled(true);
                 }
 
             } else {
                 Toast.makeText(this, "Failed to create account", Toast.LENGTH_LONG).show();
+                createAccountButton.setEnabled(true);
             }
             });
 

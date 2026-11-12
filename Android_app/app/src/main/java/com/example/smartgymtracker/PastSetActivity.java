@@ -18,7 +18,32 @@ public class PastSetActivity extends AppCompatActivity {
         int workoutIndex = getIntent().getIntExtra(PastWorkoutActivity.EXTRA_WORKOUT_INDEX, 0);
         int exerciseIndex = getIntent().getIntExtra(WorkoutActivity.EXTRA_EXERCISE_INDEX, 0);
         int setIndex = getIntent().getIntExtra(WorkoutActivity.EXTRA_SET_INDEX, 0);
-        ExerciseEntry exercise = WorkoutHistory.workouts.get(workoutIndex).exercises.get(exerciseIndex);
+
+        // Check if the workout index is valid
+        if (workoutIndex < 0 || workoutIndex >= WorkoutHistory.workouts.size()) {
+            finish();
+            return;
+        }
+
+        // Get the workout index
+        PastWorkout workout = WorkoutHistory.workouts.get(workoutIndex);
+
+        // Check if the exercise index is valid
+        if (exerciseIndex < 0 || exerciseIndex >= workout.exercises.size()) {
+            finish();
+            return;
+        }
+
+        // Get the exercise index
+        ExerciseEntry exercise = workout.exercises.get(exerciseIndex);
+
+        // Check if the set index is valid
+        if (setIndex < 0 || setIndex >= exercise.sets.size()) {
+            finish();
+            return;
+        }
+
+        // Get the set index
         SetEntry set = exercise.sets.get(setIndex);
 
         findViewById(R.id.back_button).setOnClickListener(v -> finish());

@@ -161,8 +161,11 @@ public class ProfileActivity extends AppCompatActivity {
     private void logOut() {
         FirebaseAuth.getInstance().signOut();
         WorkoutSession.reset();
+        WorkoutHistory.clearHistory();
+
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
+        finish();
     }
 }

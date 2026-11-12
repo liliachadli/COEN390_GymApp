@@ -1,6 +1,8 @@
 package com.example.smartgymtracker;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -55,8 +57,31 @@ public class LoginActivity extends AppCompatActivity {
         // Check if user exists in the database
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
             if(task.isSuccessful()){
-                Toast.makeText(this, "Login successful", Toast.LENGTH_LONG).show();
-                goToMain();
+                FirebaseUser user = auth.getCurrentUser();
+
+                if(user != null){
+                    user.reload().addOnCompleteListener(reloadTask -> {
+                        if(reloadTask.isSuccessful()){
+                            if(user.isEmailVerified()){
+                                // Clear the workout history and session
+                                WorkoutHistory.clearHistory();
+                                WorkoutSession.reset();
+
+                                Toast.makeText(this, "Login successful", Toast.LENGTH_LONG).show();
+                                goToDashboard();
+                            } else{
+                                Toast.makeText(this, "Please verify your email", Toast.LENGTH_LONG).show();
+                                auth.signOut();
+                            }
+                        } else{
+                            Toast.makeText(this, "Failed to check email verification", Toast.LENGTH_LONG).show();
+                            auth.signOut();
+                        }
+                    });
+                } else {
+                    Toast.makeText(this, "Failed to retrieve user information", Toast.LENGTH_LONG).show();
+                    auth.signOut();
+                }
             }
             else{
                 Toast.makeText(this, "Login failed", Toast.LENGTH_LONG).show();
@@ -71,7 +96,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     // Switch to main page
-    private void goToMain() {
+    private void goToDashboard() {
         Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
         startActivity(intent);
         finish();
