@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.Locale;
 
 // 1.1 · Workout page: timer and the list of exercises (APP-1.7)
-public class WorkoutActivity extends AppCompatActivity {
+public class WorkoutActivity extends BluetoothActivity {
 
     public static final String EXTRA_EXERCISE_INDEX = "exerciseIndex";
     public static final String EXTRA_SET_INDEX = "setIndex";
@@ -41,6 +41,8 @@ public class WorkoutActivity extends AppCompatActivity {
         if (!WorkoutSession.active) {
             WorkoutSession.start("Workout");
         }
+
+        bleHelp = BluetoothHelper.getInstance(getApplicationContext(), this, "WorkoutActivity");
 
         nameText = findViewById(R.id.workout_name);
         exerciseList = findViewById(R.id.exercise_list);
@@ -90,6 +92,7 @@ public class WorkoutActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        bleHelp.changeActivity(this, "WorkoutActivity");
         WorkoutUi.showDeviceChips(findViewById(R.id.motion_chip), findViewById(R.id.heart_chip));
         showExercises();
     }
@@ -258,5 +261,17 @@ public class WorkoutActivity extends AppCompatActivity {
         intent.putExtra(PastWorkoutActivity.EXTRA_WORKOUT_INDEX, index);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    public void showConnection(int deviceNum, boolean connected){
+        super.showConnection(deviceNum, connected);
+        WorkoutUi.showDeviceChips(findViewById(R.id.motion_chip), findViewById(R.id.heart_chip));
+    }
+
+    @Override
+    public void showStatus(String text) {
+        Log.i("WorkoutActivity", "BLE status: " + text);
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 }

@@ -97,6 +97,7 @@ void loop() {
       lastSentState = -1;
       isSubscribed = 1;
       Serial.println("BLE: phone subscribed, timer reset");
+      m.setState(IDLE);
     }
     else if(!ble_isSubscribed()){
       isSubscribed = 0;
@@ -167,6 +168,7 @@ void loop() {
       }
       if (actual_distance >= ( start_distance + 10.0f)){
         m.setState(LIFT);
+        sendStateIfChanged();
       }
 
       break;
@@ -192,9 +194,7 @@ void loop() {
       else if(!isMoving && !isLifting){ 
         if((last_time_moved + 7000) <= current_time ) {
           m.setState(IDLE);
-
-          Serial.printf("State: ");
-          Serial.print(m.getState()); 
+          sendStateIfChanged();
 
           //initialize for idle state
           topdistance = 0;
@@ -236,10 +236,8 @@ void loop() {
           setCurrentTime(current_time, timer, d);
           m.setState(IDLE);
 
-          Serial.printf("State: ");
-          Serial.print(m.getState()); 
-          Serial.printf(" | ");
           printdata(d);
+          sendStateIfChanged();
           sendRep();
 
           //initialize for idle state
@@ -252,6 +250,4 @@ void loop() {
       }
       break;
   }
-
-  sendStateIfChanged();
 }

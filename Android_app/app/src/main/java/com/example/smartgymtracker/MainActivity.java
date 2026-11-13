@@ -23,9 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity {
-    ActivityResultLauncher<Intent> bluetoothEnableResult;
-    BluetoothHelper bleHelp;
+public class MainActivity extends BluetoothActivity {
 
     protected Button logoutButton;
     protected Button startButton;
@@ -68,113 +66,56 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Tracking stopped", Toast.LENGTH_SHORT).show();
         });
 
-        bluetoothEnableResult = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() != RESULT_OK){
-                        Toast.makeText(this, "Please enable bluetooth to use this application", Toast.LENGTH_LONG).show();
-                    } else {
-                        bleHelp.scanForESP32();   // Bluetooth just turned on
-                    }
-                });
+        bleHelp = BluetoothHelper.getInstance(getApplicationContext(), this, "MainActivity");
 
-        bleHelp = new BluetoothHelper(getApplicationContext(), this);
-
-        boolean perms = getBluetoothPermissions();
-
-        if(!bleHelp.isBluetoothSupported()){
-            Toast.makeText(this, "Bluetooth is not supported on this device", Toast.LENGTH_LONG).show();
-            return;   // e.g. emulator: show the screen but don't touch Bluetooth
-        }
-
-        if(!bleHelp.isBluetoothEnabled()){
-            if(perms) {
-                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                bluetoothEnableResult.launch(enableBtIntent);
-            }
-            else
-                Toast.makeText(this, "Please enable bluetooth on this device", Toast.LENGTH_LONG).show();
-        }
-        else if(perms) {
-            bleHelp.scanForESP32();
+        if(checkBluetooth(2)) {
+            bleHelp.connectToESP32(0);   // Bluetooth just turned on
+            bleHelp.connectToESP32(1);
         }
         // Otherwise the scan starts from onRequestPermissionsResult / bluetoothEnableResult
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        bleHelp.changeActivity(this, "MainActivity");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (bleHelp != null) {
-            bleHelp.disconnect();   // frees the ESP32 so it advertises again
-        }
-    }
-
-    protected boolean getBluetoothPermissions() {
-        boolean perms = true;
-        List<String> permissionsToRequest = new ArrayList<>();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.BLUETOOTH_CONNECT);
-            }
-            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.BLUETOOTH_SCAN);
-            }
-        } else {
-            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION);
-            }
-            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-            }
-        }
-        if (!permissionsToRequest.isEmpty()) {
-            perms = false;
-            ActivityCompat.requestPermissions(MainActivity.this, permissionsToRequest.toArray(new String[0]), 1);
-        }
-        return perms;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == 1){
-            boolean allGranted = grantResults.length > 0;
-            for (int r : grantResults) {
-                if (r != PackageManager.PERMISSION_GRANTED) allGranted = false;
-            }
-            if (allGranted){
-                Log.e("Permissions", "Permission Granted");
-                if (bleHelp.isBluetoothEnabled()) {
-                    bleHelp.scanForESP32();
-                } else {
-                    bluetoothEnableResult.launch(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE));
-                }
-            }
-            else {
-                Log.e("Permissions","Permission Denied");
-                Toast.makeText(this, "Bluetooth permission is needed to connect to the tracker", Toast.LENGTH_LONG).show();
-            }
+            bleHelp.disconnect(0);   // frees the ESP32 so it advertises again
+            bleHelp.disconnect(1);
         }
     }
 
     // Called by BluetoothHelper to show what the connection is doing
+    @Override
     public void showStatus(String text) {
         Log.i("MainActivity", "BLE status: " + text);
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onNotifiedHeartRate(byte[] value){
+        displayReceivedData(value);
+    }
+
+    @Override
+    public void onNotifiedReps(byte[] value){
+        displayReceivedData(value);
+    }
+
     public void displayReceivedData(byte[] value) {
         // APP-0.4: only update the screen while tracking
         if (!trackingSession.isTracking()) {
-            bleHelp.setReadyToDisplay();
             return;
         }
 
         // Packet is 40 bytes; a shorter one (e.g. MTU not raised) would crash getFloat()
         if (value == null || value.length < 40) {
             Log.e("MainActivity", "Short packet: " + (value == null ? 0 : value.length) + " bytes");
-            bleHelp.setReadyToDisplay();
             return;
         }
         ByteBuffer wrapped = ByteBuffer.wrap(value).order(ByteOrder.LITTLE_ENDIAN);
@@ -200,8 +141,5 @@ public class MainActivity extends AppCompatActivity {
         tv_zgyro.setText(String.format("%.4f", zGyro));
         tv_ircount.setText(Integer.toString(ir));
         tv_redcount.setText(Integer.toString(red));
-
-        // MainActivity is ready to display next value
-        bleHelp.setReadyToDisplay();
     }
 }

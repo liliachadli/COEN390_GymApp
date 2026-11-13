@@ -54,8 +54,12 @@ public class WorkoutHistory {
             }
         }
 
-        // TODO (Person 4): real value from the heart-rate sensor after the workout
-        past.hrRecovery = past.getMaxBpm() > 0 ? 30 : 0;
+        int recoveryBPM = 0;
+        for(Integer bpm:WorkoutSession.recoveryBPMs){
+            recoveryBPM+=bpm;
+        }
+        recoveryBPM/=WorkoutSession.recoveryBPMs.size();
+        past.hrRecovery = recoveryBPM;
 
         loadGen++;
         workouts.add(0, past);

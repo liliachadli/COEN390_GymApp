@@ -6,7 +6,6 @@ import android.os.Looper;
 import java.util.Random;
 
 // Sends made-up packets so the live set screen can be tested without the bracelet.
-// TODO: replace with the real BLE packets when Person 4's code is ready.
 public class FakeSensor {
 
     private static final int REP_COUNT = 8;

@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
+
 // Small helpers shared by the screens, so each screen stays short
 public class WorkoutUi {
 

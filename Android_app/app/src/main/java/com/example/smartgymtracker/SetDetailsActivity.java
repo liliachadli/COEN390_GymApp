@@ -1,23 +1,26 @@
 package com.example.smartgymtracker;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
 // 1.1.2 · Set details: live reps, ROM, TUT and heart rate during one set (APP-1.8)
-public class SetDetailsActivity extends AppCompatActivity implements SensorListener {
+public class SetDetailsActivity extends BluetoothActivity implements SensorListener {
 
     private SetEntry set;
-    private FakeSensor sensor;
     private final List<RepData> reps = new ArrayList<>();
     private final List<Integer> bpms = new ArrayList<>();
 
@@ -37,11 +40,17 @@ public class SetDetailsActivity extends AppCompatActivity implements SensorListe
     private ScrollView repScroll;
     private HeartRateGraphView graph;
     private MaterialButton finishButton;
+    private int lastState = STATE_IDLE;
+    private float maxROM = 0;
+    private int lastGoodBPM = 0;
+    private int recoveryBPM = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set_details);
+
+        bleHelp = BluetoothHelper.getInstance(getApplicationContext(), this, "SetDetailsActivity");
 
         int exerciseIndex = getIntent().getIntExtra(WorkoutActivity.EXTRA_EXERCISE_INDEX, 0);
         int setIndex = getIntent().getIntExtra(WorkoutActivity.EXTRA_SET_INDEX, 0);
@@ -73,18 +82,21 @@ public class SetDetailsActivity extends AppCompatActivity implements SensorListe
         });
 
         showState(STATE_IDLE);
+    }
 
-        // TODO: use the real bracelet when Person 4's BLE code sends these packets
-        sensor = new FakeSensor(this);
-        sensor.start();
+    @Override
+    protected void onResume(){
+        super.onResume();
+        bleHelp.changeActivity(this, "SetDetailsActivity");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (sensor != null) {
-            sensor.stop();
-        }
+        if(DeviceState.heartConnected)
+            bleHelp.turnOffNotifications(0);
+        if(DeviceState.motionConnected)
+            bleHelp.turnOffNotifications(1);
     }
 
     @Override
@@ -178,18 +190,107 @@ public class SetDetailsActivity extends AppCompatActivity implements SensorListe
         if (reps.isEmpty()) {
             return;
         }
-        sensor.stop();
         set.repList = new ArrayList<>(reps);
         set.bpmList = new ArrayList<>(bpms);
         set.reps = reps.size();
         set.done = true;
+        if(recoveryBPM > 0)
+            WorkoutSession.recoveryBPMs.add(recoveryBPM);
         WorkoutSession.startRest(set);
         finish();
     }
 
     private void cancelSet() {
-        sensor.stop();
         restoreRest();
         finish();
+    }
+
+    @Override
+    public void onNotifiedHeartRate(byte[] value){
+        ByteBuffer wrapped = ByteBuffer.wrap(value).order(ByteOrder.LITTLE_ENDIAN);
+        if(value.length == 10){
+            int version = wrapped.get();
+            int type = wrapped.get();
+            int sequence = wrapped.getShort();
+            int timeMs = wrapped.getInt();
+            int bpm = wrapped.get();
+            int quality = wrapped.get();
+            if((quality == 0 && bpm>0) || bpm < 0)
+                bpm = lastGoodBPM;
+            lastGoodBPM = bpm;
+            onHeartRate(bpm);
+            if(bpm > 0)
+                recoveryBPM = bpm;
+        }
+        else{
+            Log.e("SetDetailsActivity", "Bluetooth Notification Error: Packet is the wrong size.");
+        }
+    }
+    @Override
+    public void onNotifiedReps(byte[] value){
+        ByteBuffer wrapped = ByteBuffer.wrap(value).order(ByteOrder.LITTLE_ENDIAN);
+        if(value.length == 9){  // State Packet
+            int version = wrapped.get();
+            int type = wrapped.get();
+            int sequence = wrapped.getShort();
+            int timeMs = wrapped.getInt();
+            int state = wrapped.get();
+            if(lastState == STATE_STOPPED){
+                return;
+            }
+            if((state == 0 || state == 1) && lastState == STATE_IDLE) {
+                onState(STATE_IDLE);
+            }
+            else if((state == 0 || state == 1) && lastState == STATE_MOVING && !reps.isEmpty()){
+                lastState = STATE_STOPPED;
+                onState(STATE_STOPPED);
+            }
+            else if((state == 0 || state == 1) && lastState == STATE_MOVING){
+                lastState = STATE_CANCELLED;
+                onState(STATE_CANCELLED);
+            }
+            else if (state == 2 || state == 3) {
+                lastState = STATE_MOVING;
+                onState(STATE_MOVING);
+            }
+        }
+        else if(value.length == 22){    // Rep Packet
+            int version = wrapped.get();
+            int type = wrapped.get();
+            int sequence = wrapped.getShort();
+            int timeMs = wrapped.getInt();
+            int repCount = wrapped.getShort();
+            int validRep = wrapped.get();
+            int state = wrapped.get();
+            float ROM = wrapped.getFloat();
+            int liftMs = wrapped.getShort();
+            int lowerMs = wrapped.getShort();
+            if(lastState == STATE_STOPPED){
+                return;
+            }
+            RepData rep = new RepData(calculateROMPercentage(ROM), liftMs, lowerMs);
+            onRep(rep);
+        }
+        else{
+            Log.e("SetDetailsActivity", "Bluetooth Notification Error: Packet is the wrong size.");
+        }
+    }
+
+    public int calculateROMPercentage(float ROM){
+        float lastMaxROM = maxROM;
+        if(ROM > maxROM) {
+            maxROM = ROM;
+            for(RepData rep: reps){
+                rep.rom = (int) (lastMaxROM*(float)rep.rom/maxROM);
+            }
+        }
+
+        return (int)(100*(ROM/maxROM));
+    }
+
+    @Override
+    public void showStatus(String text){
+        Log.i("SetDetailsActivity", "BLE status: " + text);
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 }

@@ -19,7 +19,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
 
 // 1.1.1 · Exercise details: the sets of one exercise (APP-1.7)
-public class ExerciseDetailsActivity extends AppCompatActivity {
+public class ExerciseDetailsActivity extends BluetoothActivity {
 
     private ExerciseEntry exercise;
     private int exerciseIndex;
@@ -157,6 +157,10 @@ public class ExerciseDetailsActivity extends AppCompatActivity {
             Toast.makeText(this, "Enter the weight first", Toast.LENGTH_SHORT).show();
             return;
         }
+        if(DeviceState.heartConnected)
+            bleHelp.turnOnNotifications(0);
+        if(DeviceState.motionConnected)
+            bleHelp.turnOnNotifications(1);
         Intent intent = new Intent(this, SetDetailsActivity.class);
         intent.putExtra(WorkoutActivity.EXTRA_EXERCISE_INDEX, exerciseIndex);
         intent.putExtra(WorkoutActivity.EXTRA_SET_INDEX, setIndex);
