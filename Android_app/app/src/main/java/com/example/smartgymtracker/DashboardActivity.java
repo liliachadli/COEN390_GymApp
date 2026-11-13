@@ -90,7 +90,7 @@ public class DashboardActivity extends BluetoothActivity {
         lastPr.setText("—");
         for (PastWorkout workout : WorkoutHistory.workouts) {
             if (!workout.prText.isEmpty()) {
-                lastPr.setText(workout.prText);
+                lastPr.setText(Units.convertText(workout.prText));
                 break;
             }
         }
@@ -155,6 +155,8 @@ public class DashboardActivity extends BluetoothActivity {
         }
         FirebaseFirestore.getInstance().collection("users").document(user.getUid()).get()
                 .addOnSuccessListener(doc -> {
+                    Units.useKg = "kg".equals(doc.getString("units"));
+                    refresh();
                     String firstName = doc.getString("firstName");
                     if (firstName != null && !firstName.isEmpty()) {
                         greeting.setText(hello + ", " + firstName);

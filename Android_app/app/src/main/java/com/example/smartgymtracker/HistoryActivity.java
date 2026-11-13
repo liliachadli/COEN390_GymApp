@@ -67,7 +67,7 @@ public class HistoryActivity extends AppCompatActivity {
                 lines.addView(line);
             }
 
-            String footer = "Volume " + String.format(Locale.ENGLISH, "%,d", workout.getTotalVolume()) + " lbs";
+            String footer = "Volume " + Units.formatTotal(workout.getTotalVolume());
             if (workout.getMaxBpm() > 0) {
                 footer += "   ·   Max " + workout.getMaxBpm() + " BPM";
             }

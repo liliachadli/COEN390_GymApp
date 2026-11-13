@@ -38,8 +38,8 @@ public class PastWorkoutActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.page_subtitle)).setText(date + " · " + WorkoutUi.formatDuration(workout.durationSec));
 
         ((TextView) findViewById(R.id.volume_value)).setText(
-                String.format(Locale.ENGLISH, "%,d lbs", workout.getTotalVolume()));
-        ((TextView) findViewById(R.id.pr_value)).setText(workout.prText.isEmpty() ? "—" : workout.prText);
+                Units.formatTotal(workout.getTotalVolume()));
+        ((TextView) findViewById(R.id.pr_value)).setText(workout.prText.isEmpty() ? "—" : Units.convertText(workout.prText));
         ((TextView) findViewById(R.id.max_bpm_value)).setText(
                 workout.getMaxBpm() > 0 ? String.valueOf(workout.getMaxBpm()) : "—");
         ((TextView) findViewById(R.id.hr_recovery_value)).setText(
@@ -64,7 +64,7 @@ public class PastWorkoutActivity extends AppCompatActivity {
                 SetEntry set = exercise.sets.get(s);
                 View row = LayoutInflater.from(this).inflate(R.layout.item_past_set_row, list, false);
                 ((TextView) row.findViewById(R.id.past_set_text)).setText(
-                        (s + 1) + ".  " + set.weight + " lbs × " + set.reps);
+                        (s + 1) + ".  " + Units.format(set.weight) + " × " + set.reps);
                 ((TextView) row.findViewById(R.id.past_set_tut)).setText(
                         set.repList.isEmpty() ? "—" : WorkoutUi.formatTut(set.getTotalTutMs()));
                 ((TextView) row.findViewById(R.id.past_set_rest)).setText(

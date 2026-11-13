@@ -122,7 +122,7 @@ public class ChooseExerciseActivity extends AppCompatActivity {
         equipmentText.setTextColor(WorkoutUi.color(this, WorkoutUi.equipmentColor(equipment)));
 
         row.setOnClickListener(v -> {
-            WorkoutSession.addExercise(name, equipment, 3);
+            WorkoutSession.addExercise(name, equipment, 1);
             Toast.makeText(this, name + " added", Toast.LENGTH_SHORT).show();
             finish();
         });

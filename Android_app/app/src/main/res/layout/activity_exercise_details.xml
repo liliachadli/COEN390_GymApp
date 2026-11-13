@@ -82,6 +82,7 @@
             android:textSize="11sp" />
 
         <TextView
+            android:id="@+id/weight_column_title"
             style="@style/Gym.Text.Label"
             android:layout_width="60dp"
             android:layout_height="wrap_content"

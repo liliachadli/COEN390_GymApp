@@ -45,6 +45,7 @@ public class ExerciseDetailsActivity extends BluetoothActivity {
         equipmentText.setText(exercise.equipment);
         equipmentText.setTextColor(WorkoutUi.color(this, WorkoutUi.equipmentColor(exercise.equipment)));
 
+        ((TextView) findViewById(R.id.weight_column_title)).setText(Units.label().toUpperCase());
         setsList = findViewById(R.id.sets_list);
         manualSwitch = findViewById(R.id.manual_switch);
         manualSwitch.setChecked(!DeviceState.motionConnected);
@@ -79,10 +80,10 @@ public class ExerciseDetailsActivity extends BluetoothActivity {
             number.setText(String.valueOf(i + 1));
 
             SetEntry last = WorkoutHistory.getPreviousSet(exercise.name, exercise.equipment, i);
-            previous.setText(last == null ? "—" : last.weight + " × " + last.reps);
+            previous.setText(last == null ? "—" : Units.number(last.weight) + " × " + last.reps);
 
             if (set.weight > 0) {
-                weight.setText(String.valueOf(set.weight));
+                weight.setText(Units.number(set.weight));
             }
             weight.setEnabled(!set.done);
             weight.addTextChangedListener(new TextWatcher() {
@@ -91,7 +92,7 @@ public class ExerciseDetailsActivity extends BluetoothActivity {
                 public void onTextChanged(CharSequence s, int start, int before, int count) { }
 
                 public void afterTextChanged(Editable s) {
-                    set.weight = toNumber(s.toString());
+                    set.weight = Units.toLbs(s.toString());
                 }
             });
 

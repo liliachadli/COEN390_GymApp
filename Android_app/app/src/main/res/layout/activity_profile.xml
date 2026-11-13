@@ -95,7 +95,7 @@
                 <EditText
                     android:id="@+id/first_name_input"
                     style="@style/Gym.Input.Small"
-                    android:hint="Ali"
+                    android:hint="First name"
                     android:inputType="textPersonName|textCapWords" />
             </LinearLayout>
 

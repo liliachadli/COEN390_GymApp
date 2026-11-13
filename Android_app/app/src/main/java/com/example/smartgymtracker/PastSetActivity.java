@@ -48,7 +48,7 @@ public class PastSetActivity extends AppCompatActivity {
 
         findViewById(R.id.back_button).setOnClickListener(v -> finish());
         ((TextView) findViewById(R.id.page_title)).setText(exercise.name + " · Set " + (setIndex + 1));
-        ((TextView) findViewById(R.id.page_subtitle)).setText(set.weight + " lbs · " + set.reps + " reps");
+        ((TextView) findViewById(R.id.page_subtitle)).setText(Units.format(set.weight) + " · " + set.reps + " reps");
 
         LinearLayout repList = findViewById(R.id.rep_list);
         for (int i = 0; i < set.repList.size(); i++) {
