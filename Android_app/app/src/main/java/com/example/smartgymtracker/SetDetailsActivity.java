@@ -58,7 +58,7 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
         set = exercise.sets.get(setIndex);
 
         ((TextView) findViewById(R.id.set_title)).setText(exercise.name);
-        ((TextView) findViewById(R.id.set_subtitle)).setText("Set " + (setIndex + 1) + " · " + set.weight + " lbs");
+        ((TextView) findViewById(R.id.set_subtitle)).setText("Set " + (setIndex + 1) + " · " + Units.format(set.weight));
 
         stateChip = findViewById(R.id.state_chip);
         repsCount = findViewById(R.id.reps_count);

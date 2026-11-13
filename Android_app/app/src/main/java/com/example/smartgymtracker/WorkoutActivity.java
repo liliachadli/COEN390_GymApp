@@ -111,7 +111,7 @@ public class WorkoutActivity extends BluetoothActivity {
             ((TextView) card.findViewById(R.id.exercise_name)).setText(exercise.name);
 
             int weight = exercise.sets.isEmpty() ? 0 : exercise.sets.get(0).weight;
-            String weightText = weight > 0 ? weight + " lbs" : "no weight yet";
+            String weightText = weight > 0 ? Units.format(weight) : "no weight yet";
             ((TextView) card.findViewById(R.id.exercise_info)).setText(exercise.equipment + " · " + weightText);
 
             // One small bar per set
