@@ -17,6 +17,7 @@ public class WorkoutSession {
     // Rest timer: when the last set ended (0 = no rest running) and which set it was
     public static long restStartElapsed = 0;
     public static SetEntry restAfterSet = null;
+    public static ArrayList<Integer> recoveryBPMs = null;
 
     public static void start(String workoutName) {
         active = true;
@@ -26,6 +27,7 @@ public class WorkoutSession {
         exercises = new ArrayList<>();
         restStartElapsed = 0;
         restAfterSet = null;
+        recoveryBPMs = new ArrayList<>();
     }
 
     public static ExerciseEntry addExercise(String exerciseName, String equipment, int setCount) {

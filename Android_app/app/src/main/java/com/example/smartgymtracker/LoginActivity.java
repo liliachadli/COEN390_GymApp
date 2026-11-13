@@ -24,6 +24,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        goToMain();
+
         // Connecting variables to the XML components
         emailLoginInput = findViewById(R.id.emailLoginInput);
         passwordLoginInput = findViewById(R.id.passwordLoginInput);

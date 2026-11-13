@@ -2,6 +2,7 @@ package com.example.smartgymtracker;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -18,7 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Calendar;
 
 // 1 · Dashboard: start a workout, templates, devices (APP-1.3)
-public class DashboardActivity extends AppCompatActivity {
+public class DashboardActivity extends BluetoothActivity {
 
     private TextView greeting;
     private TextView motionChip;
@@ -27,11 +29,15 @@ public class DashboardActivity extends AppCompatActivity {
     private TextView startSubtitle;
     private TextView weekCount;
     private TextView lastPr;
+    private BottomSheetDialog sheet;
+    private View view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
+
+        bleHelp = BluetoothHelper.getInstance(getApplicationContext(), this, "DashboardActivity");
 
         greeting = findViewById(R.id.dash_greeting);
         motionChip = findViewById(R.id.motion_chip);
@@ -42,7 +48,11 @@ public class DashboardActivity extends AppCompatActivity {
         lastPr = findViewById(R.id.last_pr);
 
         findViewById(R.id.start_card).setOnClickListener(v -> startWorkout());
-        findViewById(R.id.devices_button).setOnClickListener(v -> DeviceSheet.show(this, this::refresh));
+        findViewById(R.id.devices_button).setOnClickListener(v -> {
+            sheet = new BottomSheetDialog(this);
+            view = LayoutInflater.from(this).inflate(R.layout.sheet_devices, null);
+            DeviceSheet.show(this, this::refresh, sheet, view, bleHelp);
+        });
         findViewById(R.id.new_template_button).setOnClickListener(v ->
                 Toast.makeText(this, "Creating templates comes later", Toast.LENGTH_SHORT).show());
 
@@ -53,6 +63,7 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        bleHelp.changeActivity(this, "DashboardActivity");
         NavBar.setup(this, R.id.nav_workout);
         refresh();
     }
@@ -149,5 +160,18 @@ public class DashboardActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 });
+    }
+
+    @Override
+    public void showStatus(String text) {
+        Log.i("DashboardActivity", "BLE status: " + text);
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showConnection(int deviceNum, boolean connected){
+        super.showConnection(deviceNum, connected);
+        DeviceSheet.updateStatus(view);
+        WorkoutUi.showDeviceChips(motionChip, heartChip);
     }
 }

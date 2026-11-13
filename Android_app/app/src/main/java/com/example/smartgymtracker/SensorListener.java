@@ -1,7 +1,6 @@
 package com.example.smartgymtracker;
 
 // What the live set screen needs from the bracelet.
-// BLE code (Person 4 / Nam) calls these when a packet arrives.
 public interface SensorListener {
 
     int STATE_IDLE = 0;
