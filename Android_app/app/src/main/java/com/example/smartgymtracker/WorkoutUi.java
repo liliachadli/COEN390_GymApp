@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
-import java.util.List;
 
 // Small helpers shared by the screens, so each screen stays short
 public class WorkoutUi {
@@ -93,12 +92,5 @@ public class WorkoutUi {
                 new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 100 - rom));
         tint(bar, barColorRes);
         list.addView(row);
-    }
-
-    public static void updateRepROM(LinearLayout list, List<RepData> reps, int color){
-        list.removeAllViews();
-        for(int i=0; i<list.getChildCount(); i++){
-            addRepRow(list, i+1, reps.get(i), color);
-        }
     }
 }
