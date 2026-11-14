@@ -213,10 +213,12 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             int type = wrapped.get();
             int sequence = wrapped.getShort();
             int timeMs = wrapped.getInt();
-            int bpm = wrapped.get();
+            int bpm = wrapped.get() & 0xFF;   // unsigned, or anything over 127 BPM reads negative
             int quality = wrapped.get();
-            if((quality == 0 && bpm>0) || bpm < 0)
+            if(quality == 0)
                 bpm = lastGoodBPM;
+            if(bpm == 0)
+                return;   // no reading yet, keep it out of the graph and the average
             lastGoodBPM = bpm;
             onHeartRate(bpm);
             if(bpm > 0)
@@ -259,14 +261,14 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             int type = wrapped.get();
             int sequence = wrapped.getShort();
             int timeMs = wrapped.getInt();
-            int repCount = wrapped.getShort();
+            int repCount = wrapped.getShort() & 0xFFFF;
             int validRep = wrapped.get();
             int state = wrapped.get();
             float ROM = wrapped.getFloat();
-            int liftMs = wrapped.getShort();
-            int lowerMs = wrapped.getShort();
-            if(lastState == STATE_STOPPED){
-                return;
+            int liftMs = wrapped.getShort() & 0xFFFF;
+            int lowerMs = wrapped.getShort() & 0xFFFF;
+            if(lastState == STATE_STOPPED || validRep == 0){
+                return;   // the tracker sends partial reps too, with validRep = 0
             }
             RepData rep = new RepData(calculateROMPercentage(ROM), liftMs, lowerMs);
             onRep(rep);

@@ -237,8 +237,9 @@ void loop() {
           m.setState(IDLE);
 
           printdata(d);
-          sendStateIfChanged();
+          // rep first: the app ends the set on IDLE and ignores anything after it
           sendRep();
+          sendStateIfChanged();
 
           //initialize for idle state
           topdistance = 0;
