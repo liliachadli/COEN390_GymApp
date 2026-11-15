@@ -1,12 +1,18 @@
 package com.example.smartgymtracker;
 
-// What the live set screen needs from the bracelet.
+// What the live set screen needs from the trackers.
 public interface SensorListener {
 
-    int STATE_IDLE = 0;
-    int STATE_MOVING = 1;
-    int STATE_STOPPED = 2;    // 5 s without moving: the set is over
-    int STATE_CANCELLED = 3;  // the movement was not a real set
+    int SET_WAITING = 0;
+    int SET_MOVING = 1;
+    int SET_DONE = 2;         // 5 s without moving: the set is over
+    int SET_CANCELLED = 3;    // the movement was not a real set
+
+    // States sent by the weight-stack tracker in its STATE packet
+    int TRACKER_IDLE = 0;
+    int TRACKER_START = 1;
+    int TRACKER_LIFT = 2;
+    int TRACKER_LOWER = 3;
 
     void onState(int state);
 

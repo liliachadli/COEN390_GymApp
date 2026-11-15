@@ -41,7 +41,7 @@
                 style="@style/Gym.Text.Subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Smart bracelet · 2 sensors"
+                android:text="Smart Gym Tracker · 2 trackers"
                 android:textSize="14sp" />
         </LinearLayout>
 

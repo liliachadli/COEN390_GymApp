@@ -40,7 +40,7 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
     private ScrollView repScroll;
     private HeartRateGraphView graph;
     private MaterialButton finishButton;
-    private int lastState = STATE_IDLE;
+    private int lastState = SET_WAITING;
     private float maxROM = 0;
     private int lastGoodBPM = 0;
     private int recoveryBPM = 0;
@@ -81,7 +81,7 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             }
         });
 
-        showState(STATE_IDLE);
+        showState(SET_WAITING);
     }
 
     @Override
@@ -103,16 +103,16 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
     public void onState(int state) {
         showState(state);
 
-        if (state == STATE_MOVING && !restStopped) {
+        if (state == SET_MOVING && !restStopped) {
             // The set started: stop the rest timer of the previous set
             savedRestStart = WorkoutSession.restStartElapsed;
             savedRestSet = WorkoutSession.restAfterSet;
             WorkoutSession.stopRest();
             restStopped = true;
-        } else if (state == STATE_STOPPED) {
+        } else if (state == SET_DONE) {
             finishButton.setEnabled(true);
             finishHint.setText("Set over. Tap Finish to save it.");
-        } else if (state == STATE_CANCELLED) {
+        } else if (state == SET_CANCELLED) {
             reps.clear();
             repList.removeAllViews();
             updateStats();
@@ -156,13 +156,13 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
 
     private void showState(int state) {
         switch (state) {
-            case STATE_MOVING:
+            case SET_MOVING:
                 setChip("● MOVING", R.color.gym_accent, R.color.gym_accent_tint);
                 break;
-            case STATE_STOPPED:
+            case SET_DONE:
                 setChip("● SET DONE", R.color.gym_cyan, R.color.gym_cyan_tint);
                 break;
-            case STATE_CANCELLED:
+            case SET_CANCELLED:
                 setChip("● CANCELLED", R.color.gym_coral, R.color.gym_coral_tint);
                 break;
             default:
@@ -208,7 +208,7 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
     @Override
     public void onNotifiedHeartRate(byte[] value){
         ByteBuffer wrapped = ByteBuffer.wrap(value).order(ByteOrder.LITTLE_ENDIAN);
-        if(value.length == 10){
+        if(value.length == 10 && value[1] == 0x02){
             int version = wrapped.get();
             int type = wrapped.get();
             int sequence = wrapped.getShort();
@@ -225,38 +225,38 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
                 recoveryBPM = bpm;
         }
         else{
-            Log.e("SetDetailsActivity", "Bluetooth Notification Error: Packet is the wrong size.");
+            Log.e("SetDetailsActivity", "Bluetooth Notification Error: unknown packet");
         }
     }
     @Override
     public void onNotifiedReps(byte[] value){
         ByteBuffer wrapped = ByteBuffer.wrap(value).order(ByteOrder.LITTLE_ENDIAN);
-        if(value.length == 9){  // State Packet
+        if(value.length == 9 && value[1] == 0x04){  // State Packet
             int version = wrapped.get();
             int type = wrapped.get();
             int sequence = wrapped.getShort();
             int timeMs = wrapped.getInt();
             int state = wrapped.get();
-            if(lastState == STATE_STOPPED){
+            if(lastState == SET_DONE){
                 return;
             }
-            if((state == 0 || state == 1) && lastState == STATE_IDLE) {
-                onState(STATE_IDLE);
+            if((state == TRACKER_IDLE || state == TRACKER_START) && lastState == SET_WAITING) {
+                onState(SET_WAITING);
             }
-            else if((state == 0 || state == 1) && lastState == STATE_MOVING && !reps.isEmpty()){
-                lastState = STATE_STOPPED;
-                onState(STATE_STOPPED);
+            else if((state == TRACKER_IDLE || state == TRACKER_START) && lastState == SET_MOVING && !reps.isEmpty()){
+                lastState = SET_DONE;
+                onState(SET_DONE);
             }
-            else if((state == 0 || state == 1) && lastState == STATE_MOVING){
-                lastState = STATE_CANCELLED;
-                onState(STATE_CANCELLED);
+            else if((state == TRACKER_IDLE || state == TRACKER_START) && lastState == SET_MOVING){
+                lastState = SET_CANCELLED;
+                onState(SET_CANCELLED);
             }
-            else if (state == 2 || state == 3) {
-                lastState = STATE_MOVING;
-                onState(STATE_MOVING);
+            else if (state == TRACKER_LIFT || state == TRACKER_LOWER) {
+                lastState = SET_MOVING;
+                onState(SET_MOVING);
             }
         }
-        else if(value.length == 22){    // Rep Packet
+        else if(value.length == 22 && value[1] == 0x03){    // Rep Packet
             int version = wrapped.get();
             int type = wrapped.get();
             int sequence = wrapped.getShort();
@@ -267,14 +267,14 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             float ROM = wrapped.getFloat();
             int liftMs = wrapped.getShort() & 0xFFFF;
             int lowerMs = wrapped.getShort() & 0xFFFF;
-            if(lastState == STATE_STOPPED || validRep == 0){
+            if(lastState == SET_DONE || validRep == 0){
                 return;   // the tracker sends partial reps too, with validRep = 0
             }
             RepData rep = new RepData(calculateROMPercentage(ROM), liftMs, lowerMs);
             onRep(rep);
         }
         else{
-            Log.e("SetDetailsActivity", "Bluetooth Notification Error: Packet is the wrong size.");
+            Log.e("SetDetailsActivity", "Bluetooth Notification Error: unknown packet");
         }
     }
 

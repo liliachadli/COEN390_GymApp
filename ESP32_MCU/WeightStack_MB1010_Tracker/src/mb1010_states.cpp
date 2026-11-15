@@ -1,4 +1,4 @@
-#include "bm11010_states.h"
+#include "mb1010_states.h"
 
 void StateMachine::setState(State newState){
     currentState = newState;

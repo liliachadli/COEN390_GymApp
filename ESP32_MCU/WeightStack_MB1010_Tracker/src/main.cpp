@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include "bm11010.h"
-#include "bm11010_states.h"
+#include "mb1010.h"
+#include "mb1010_states.h"
 #include "ble_tracker.h"
 #include "ble_packet.h"
 
@@ -24,7 +24,6 @@ float start_distance = 0;
 
 float topdistance = 0;
 float bottom_distance = MAXFLOAT;
-float refdistance_3reps[2];
 float refdistance = 0 ;
 
 bool isMoving = 0; 
@@ -70,7 +69,7 @@ void setup() {
   delay(3000);
 
   initializeSensor(SONAR_PIN);  
-  Serial.printf("BM11010 Sonar initialized\n");
+  Serial.printf("MB1010 sonar initialized\n");
   
   readPulse(SONAR_PIN, s);
   setDistance(s);
@@ -251,4 +250,6 @@ void loop() {
       }
       break;
   }
+
+  sendStateIfChanged();
 }
