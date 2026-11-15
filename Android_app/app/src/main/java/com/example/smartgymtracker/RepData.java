@@ -1,6 +1,6 @@
 package com.example.smartgymtracker;
 
-// One rep sent by the bracelet (REP packet)
+// One rep sent by the weight-stack tracker (REP packet)
 public class RepData {
 
     public int rom;      // range of motion, in %

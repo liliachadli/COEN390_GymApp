@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 
-// Devices sheet: connect the 2 sensors of the bracelet (APP-1.6)
+// Devices sheet: connect the 2 trackers (APP-1.6)
 public class DeviceSheet {
 
     public static void show(Activity activity, Runnable onClose, BottomSheetDialog sheet, View view, BluetoothHelper bleHelp) {

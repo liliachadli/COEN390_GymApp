@@ -1,5 +1,5 @@
 ==============================================================================
-SMART GYM TRACKER - SIM-1 RESULTS: WEIGHT-STACK REP DETECTION (Nam)
+SMART GYM TRACKER - SIM-1 RESULTS: WEIGHT-STACK REP DETECTION
 Simulation results (expected) and real sensor results (actual)
 Simulation: rep_simulation.py   |   Real: weight-stack tracker serial monitor
 ==============================================================================

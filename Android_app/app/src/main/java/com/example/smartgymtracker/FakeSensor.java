@@ -5,7 +5,7 @@ import android.os.Looper;
 
 import java.util.Random;
 
-// Sends made-up packets so the live set screen can be tested without the bracelet.
+// Sends made-up packets so the live set screen can be tested without the trackers.
 public class FakeSensor {
 
     private static final int REP_COUNT = 8;
@@ -21,7 +21,7 @@ public class FakeSensor {
     }
 
     public void start() {
-        handler.postDelayed(() -> listener.onState(SensorListener.STATE_MOVING), 800);
+        handler.postDelayed(() -> listener.onState(SensorListener.SET_MOVING), 800);
         handler.postDelayed(this::sendRep, 2000);
         handler.post(this::sendHeartRate);
     }
@@ -41,7 +41,7 @@ public class FakeSensor {
             handler.postDelayed(this::sendRep, 1600);
         } else {
             // 5 seconds without moving: the set is over
-            handler.postDelayed(() -> listener.onState(SensorListener.STATE_STOPPED), 5000);
+            handler.postDelayed(() -> listener.onState(SensorListener.SET_DONE), 5000);
         }
     }
 

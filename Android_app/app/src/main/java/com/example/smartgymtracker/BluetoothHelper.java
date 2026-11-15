@@ -219,7 +219,7 @@ public class BluetoothHelper {
                         }
                         sendStatus("Connected to Rep Tracker");
                         sendConnection(1,true);
-                        // 40-byte packet needs a bigger MTU; services are discovered in onMtuChanged
+                        // 22-byte rep packet; the bigger MTU is kept for future packet types. Services are discovered in onMtuChanged
                         if (!gatt.requestMtu(64)) {
                             gatt.discoverServices();
                         }

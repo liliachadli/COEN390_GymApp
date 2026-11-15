@@ -1,0 +1,10 @@
+Heart rate wearable firmware for CompletePCB V1.3 (ESP32-C3-MINI-1)
+
+Same code as HeartRate_Wearable (SuperMini breadboard build), only the I2C pins change:
+-SDA GPIO0, SCL GPIO1 (swapped compared to the SuperMini build)
+-MAX30102 on J5, MPU6050 on J4, both on the same I2C bus
+
+Same BLE name (SGT-HR-XXXX) and packet as HeartRate_Wearable, so the app works with either board.
+
+Flashing: plug USB-C into J1. If the upload does not start, hold SW2 (BOOT, GPIO9),
+press SW1 (EN/reset), then let go of SW2.

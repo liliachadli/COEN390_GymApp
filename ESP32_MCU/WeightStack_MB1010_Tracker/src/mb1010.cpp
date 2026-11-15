@@ -1,4 +1,4 @@
-#include "bm11010.h"
+#include "mb1010.h"
 
 void initializeSensor(uint8_t pwPin){
     pinMode(pwPin, INPUT); //Configure the pin 3 to behave as as input
@@ -14,7 +14,7 @@ void setDistance(sensor &s){
     }
 }
 
-float readDistance(sensor s){
+float readDistance(sensor &s){
     return s.distanceCm;
 }
 

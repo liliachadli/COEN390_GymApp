@@ -1,5 +1,5 @@
 ==============================================================================
-SMART GYM TRACKER - SIM-1 RESULTS: WEARABLE HEART RATE (Nam)
+SMART GYM TRACKER - SIM-1 RESULTS: WEARABLE HEART RATE
 Simulation results (expected) and real sensor results (actual)
 Simulation: hr_simulation.py   |   Real: wearable serial monitor (HR,seq,timeMs,bpm,quality)
 ==============================================================================
