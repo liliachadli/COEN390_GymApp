@@ -1,0 +1,19 @@
+Weight stack tracker firmware for CompletePCB V1.3 (ESP32-C3-MINI-1)
+
+Same code as WeightStack_MB1010_Tracker (SuperMini breadboard build), only the sonar pin changes:
+-MB1010 PW output on GPIO0 (the SDA net, no pull-up on the PCB), was GPIO3 on the SuperMini
+-GPIO3 is now the BQ24073 CHG pin, so the old sonar pin can't be used
+
+Wiring, MB1010 into J5 (4-pin header):
+-J5 pin 1 3V3 -> MB1010 V+ (the MB1010 runs from 2.5 V to 5.5 V, the PW scale stays 147 us/inch)
+-J5 pin 2 SDA -> MB1010 PW
+-J5 pin 4 GND -> MB1010 GND
+-J5 pin 3 SCL is not used
+
+Charger status is printed on serial (PWR,on battery/charging/charged) from the BQ24073
+CHG (GPIO3) and PGOOD (GPIO4) pins, same as HeartRate_Wearable_CompletePCB.
+
+Same BLE name (SGT-WS-XXXX), UUIDs and packets as WeightStack_MB1010_Tracker, so the app works with either board.
+
+Flashing: plug USB-C into J1. If the upload does not start, hold SW2 (BOOT, GPIO9),
+press SW1 (EN/reset), then let go of SW2.
