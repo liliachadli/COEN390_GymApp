@@ -267,9 +267,9 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             float ROM = wrapped.getFloat();
             int liftMs = wrapped.getShort() & 0xFFFF;
             int lowerMs = wrapped.getShort() & 0xFFFF;
-            if(lastState == SET_DONE || validRep == 0){
-                return;   // the tracker sends partial reps too, with validRep = 0
-            }
+//            if(lastState == SET_DONE || validRep == 0){
+//                return;   // the tracker sends partial reps too, with validRep = 0
+//            }
             RepData rep = new RepData(calculateROMPercentage(ROM), liftMs, lowerMs);
             onRep(rep);
         }
