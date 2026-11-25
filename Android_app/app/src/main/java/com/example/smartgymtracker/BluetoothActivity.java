@@ -2,7 +2,10 @@ package com.example.smartgymtracker;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +23,8 @@ import java.util.List;
 
 public class BluetoothActivity extends AppCompatActivity {
     BluetoothHelper bleHelp;
+
+    private BroadcastReceiver mReceiver;
     ActivityResultLauncher<Intent> bluetoothEnableResult;
     int deviceToConnect = -1;
 
@@ -27,6 +32,43 @@ public class BluetoothActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         bleHelp = BluetoothHelper.getInstance(getApplicationContext(), this, "BluetoothActivity");
+
+        mReceiver = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                String action = intent.getAction();
+
+                // It means the user has changed his bluetooth state.
+                if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+
+                    if (bleHelp.bluetoothAdapter.getState() == BluetoothAdapter.STATE_ON) {
+                        if(!bleHelp.isConnected(0) && bleHelp.shouldBeConnected[0]) {
+                            bleHelp.connectToESP32(0);
+                            showConnection(0, true);
+                        }
+
+                        if(!bleHelp.isConnected(1) && bleHelp.shouldBeConnected[1]) {
+                            bleHelp.connectToESP32(1);
+                            showConnection(1, true);
+                        }
+
+                        return;
+                    }
+
+                    if (bleHelp.bluetoothAdapter.getState() == BluetoothAdapter.STATE_OFF) {
+                        showConnection(0,false);
+                        showConnection(1,false);
+                        Toast.makeText(context, "Please turn on bluetooth to use the trackers.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                }
+            }
+        };
+
+        this.registerReceiver(mReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 
         bluetoothEnableResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),

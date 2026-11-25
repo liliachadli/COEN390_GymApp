@@ -24,10 +24,6 @@ public class DeviceSheet {
         setupCard(motion, true, bleHelp, activity);
         setupCard(heart, false, bleHelp, activity);
 
-        view.findViewById(R.id.raw_data_link).setOnClickListener(v -> {
-            sheet.dismiss();
-            activity.startActivity(new Intent(activity, MainActivity.class));
-        });
         view.findViewById(R.id.sheet_done).setOnClickListener(v -> sheet.dismiss());
         sheet.setOnDismissListener(d -> onClose.run());
         sheet.show();

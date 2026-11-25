@@ -32,7 +32,7 @@ public class DashboardActivity extends BluetoothActivity {
     private TextView weekCount;
     private TextView lastPr;
     private BottomSheetDialog sheet;
-    private View view;
+    private View view = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -233,7 +233,8 @@ public class DashboardActivity extends BluetoothActivity {
     @Override
     public void showConnection(int deviceNum, boolean connected){
         super.showConnection(deviceNum, connected);
-        DeviceSheet.updateStatus(view);
+        if(view != null)
+            DeviceSheet.updateStatus(view);
         WorkoutUi.showDeviceChips(motionChip, heartChip);
     }
 }
