@@ -18,9 +18,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Calendar;
+import java.util.List;
 
 // 1 · Dashboard: start a workout, templates, devices (APP-1.3)
 public class DashboardActivity extends BluetoothActivity {
+    private String shownTemplates = null;   // templates drawn on screen (see templateKey)
     private Toast currentToast;
     private TextView greeting;
     private TextView motionChip;
@@ -53,10 +55,14 @@ public class DashboardActivity extends BluetoothActivity {
             view = LayoutInflater.from(this).inflate(R.layout.sheet_devices, null);
             DeviceSheet.show(this, this::refresh, sheet, view, bleHelp);
         });
-        findViewById(R.id.new_template_button).setOnClickListener(v ->
-                Toast.makeText(this, "Creating templates comes later", Toast.LENGTH_SHORT).show());
+        findViewById(R.id.new_template_button).setOnClickListener(v -> {
+            if (!WorkoutUi.tooFast()) {
+                startActivity(new Intent(this, TemplateEditorActivity.class));
+            }
+        });
 
-        addTemplateCards();
+        // Phone copy first, then Firebase
+        TemplateStore.load(this, this::addTemplateCards);
         loadProfile();
     }
 
@@ -66,6 +72,11 @@ public class DashboardActivity extends BluetoothActivity {
         bleHelp.changeActivity(this, "DashboardActivity");
         NavBar.setup(this, R.id.nav_workout);
         refresh();
+
+        // Coming back from the template editor: redraw the cards if something changed
+        if (!templateKey().equals(shownTemplates)) {
+            addTemplateCards();
+        }
 
         // Load workouts from the database
         WorkoutHistory.loadWorkouts(() ->{
@@ -110,12 +121,40 @@ public class DashboardActivity extends BluetoothActivity {
         }
     }
 
+    // Short text that changes when any template changes
+    private String templateKey() {
+        StringBuilder key = new StringBuilder();
+        for (Template t : TemplateStore.templates) {
+            key.append(t.id).append(t.name).append(t.color).append(t.exercises).append(t.sets).append(';');
+        }
+        return key.toString();
+    }
+
     // Template cards, 2 per row
     private void addTemplateCards() {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
         LinearLayout grid = findViewById(R.id.templates_grid);
+        grid.removeAllViews();
         LinearLayout row = null;
+        List<Template> templates = TemplateStore.templates;
+        shownTemplates = templateKey();
 
-        for (int i = 0; i < Template.ALL.length; i++) {
+        if (templates.isEmpty()) {
+            // No template: a dashed card that opens the editor
+            TextView create = new TextView(this);
+            create.setText("+  Create your first template");
+            create.setGravity(android.view.Gravity.CENTER);
+            create.setTextColor(WorkoutUi.color(this, R.color.gym_text_secondary));
+            create.setBackgroundResource(R.drawable.bg_dashed);
+            create.setPadding(0, WorkoutUi.dp(this, 22), 0, WorkoutUi.dp(this, 22));
+            create.setOnClickListener(v -> startActivity(new Intent(this, TemplateEditorActivity.class)));
+            grid.addView(create);
+            return;
+        }
+
+        for (int i = 0; i < templates.size(); i++) {
             if (i % 2 == 0) {
                 row = new LinearLayout(this);
                 row.setOrientation(LinearLayout.HORIZONTAL);
@@ -128,22 +167,23 @@ public class DashboardActivity extends BluetoothActivity {
                 row.addView(new Space(this), WorkoutUi.dp(this, 12), 1);
             }
 
-            Template template = Template.ALL[i];
+            Template template = templates.get(i);
             View card = LayoutInflater.from(this).inflate(R.layout.item_template_card, row, false);
             TextView name = card.findViewById(R.id.template_name);
             TextView muscles = card.findViewById(R.id.template_muscles);
             TextView count = card.findViewById(R.id.template_count);
             name.setText(template.name);
-            muscles.setText(template.muscles);
-            count.setText(template.exercises.length + " exercises");
-            count.setTextColor(WorkoutUi.color(this, template.colorRes));
-            WorkoutUi.tint(card.findViewById(R.id.template_color), template.colorRes);
+            muscles.setText(template.getMuscles());
+            int exercises = template.exercises.size();
+            count.setText(exercises + (exercises == 1 ? " exercise" : " exercises"));
+            count.setTextColor(WorkoutUi.color(this, template.getColorRes()));
+            WorkoutUi.tint(card.findViewById(R.id.template_color), template.getColorRes());
             card.setOnClickListener(v -> TemplateSheet.show(this, template));
             row.addView(card);
         }
 
         // Odd number of templates: keep the last card half width
-        if (Template.ALL.length % 2 == 1 && row != null) {
+        if (templates.size() % 2 == 1 && row != null) {
             row.addView(new Space(this), WorkoutUi.dp(this, 12), 1);
             View empty = new View(this);
             row.addView(empty, new LinearLayout.LayoutParams(0, 1, 1));

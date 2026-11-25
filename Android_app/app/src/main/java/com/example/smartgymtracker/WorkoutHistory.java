@@ -54,11 +54,15 @@ public class WorkoutHistory {
             }
         }
 
+        // Average heart rate recovery. No values (wearable not used, or finished too fast) = 0.
+        // Before, an empty list divided by 0 and crashed the app on Finish.
         long recoveryBPM = 0;
-        for(Integer bpm:WorkoutSession.recoveryBPMs){
-            recoveryBPM+=bpm;
+        if (WorkoutSession.recoveryBPMs != null && !WorkoutSession.recoveryBPMs.isEmpty()) {
+            for (Integer bpm : WorkoutSession.recoveryBPMs) {
+                recoveryBPM += bpm;
+            }
+            recoveryBPM /= WorkoutSession.recoveryBPMs.size();
         }
-        recoveryBPM/=WorkoutSession.recoveryBPMs.size();
         past.hrRecovery = (int) recoveryBPM;
 
         loadGen++;
