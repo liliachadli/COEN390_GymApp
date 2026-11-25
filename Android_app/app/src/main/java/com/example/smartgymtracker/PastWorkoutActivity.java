@@ -43,7 +43,7 @@ public class PastWorkoutActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.max_bpm_value)).setText(
                 workout.getMaxBpm() > 0 ? String.valueOf(workout.getMaxBpm()) : "—");
         ((TextView) findViewById(R.id.hr_recovery_value)).setText(
-                workout.hrRecovery > 0 ? "-" + workout.hrRecovery + " BPM" : "—");
+                workout.hrRecovery > 0 ? workout.hrRecovery + " BPM" : "—");
 
         LinearLayout list = findViewById(R.id.past_exercise_list);
         for (int e = 0; e < workout.exercises.size(); e++) {

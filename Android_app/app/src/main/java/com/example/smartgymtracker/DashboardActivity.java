@@ -21,7 +21,7 @@ import java.util.Calendar;
 
 // 1 · Dashboard: start a workout, templates, devices (APP-1.3)
 public class DashboardActivity extends BluetoothActivity {
-
+    private Toast currentToast;
     private TextView greeting;
     private TextView motionChip;
     private TextView heartChip;
@@ -172,7 +172,11 @@ public class DashboardActivity extends BluetoothActivity {
     @Override
     public void showStatus(String text) {
         Log.i("DashboardActivity", "BLE status: " + text);
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+        if(currentToast != null)
+            currentToast.cancel();
+
+        currentToast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
+        currentToast.show();
     }
 
     @Override

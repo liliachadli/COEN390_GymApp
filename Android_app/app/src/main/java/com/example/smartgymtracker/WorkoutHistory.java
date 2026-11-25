@@ -54,12 +54,12 @@ public class WorkoutHistory {
             }
         }
 
-        int recoveryBPM = 0;
+        long recoveryBPM = 0;
         for(Integer bpm:WorkoutSession.recoveryBPMs){
             recoveryBPM+=bpm;
         }
         recoveryBPM/=WorkoutSession.recoveryBPMs.size();
-        past.hrRecovery = recoveryBPM;
+        past.hrRecovery = (int) recoveryBPM;
 
         loadGen++;
         workouts.add(0, past);
