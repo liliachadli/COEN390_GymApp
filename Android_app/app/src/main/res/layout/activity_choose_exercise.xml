@@ -8,8 +8,9 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical"
     android:paddingStart="@dimen/screen_side"
-    android:paddingTop="20dp"
-    android:paddingEnd="@dimen/screen_side">
+    android:paddingTop="24dp"
+    android:paddingEnd="@dimen/screen_side"
+    android:paddingBottom="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -34,7 +35,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="22dp"
         android:background="@drawable/bg_input"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -65,7 +66,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="16dp"
         android:orientation="horizontal">
 
         <TextView
@@ -104,7 +105,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="14dp"
         android:layout_weight="1">
 
         <!-- Muscle groups and exercises, added by ChooseExerciseActivity -->
@@ -120,7 +121,7 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/start_plan_button"
         style="@style/Gym.Button.Primary"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         android:layout_marginBottom="16dp"
         android:enabled="false"
         android:text="Pick your exercises"

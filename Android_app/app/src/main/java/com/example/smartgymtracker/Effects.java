@@ -16,7 +16,15 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
+import androidx.core.widget.NestedScrollView;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 // Small animations used on the workout screens
@@ -53,6 +61,54 @@ public class Effects {
             child.setTranslationY(lift);
             child.animate().alpha(1f).translationY(0).setStartDelay(60L * Math.min(i, 8))
                     .setDuration(380).setInterpolator(new DecelerateInterpolator(2f)).start();
+        }
+    }
+
+    // Every page: its blocks come up one after the other when the page opens.
+    // Called for every screen by GymApp (not when the page is only rebuilt, e.g. dark mode).
+    public static void enterPage(Activity activity) {
+        ViewGroup content = activity.findViewById(android.R.id.content);
+        if (content == null || content.getChildCount() == 0) {
+            return;
+        }
+        List<View> blocks = new ArrayList<>();
+        collectBlocks(content.getChildAt(0), blocks, 0);
+        float lift = WorkoutUi.dp(activity, 18);
+        for (int i = 0; i < blocks.size(); i++) {
+            View block = blocks.get(i);
+            block.setAlpha(0f);
+            block.setTranslationY(lift);
+            block.animate().alpha(1f).translationY(0).setStartDelay(45L * Math.min(i, 10))
+                    .setDuration(360).setInterpolator(new DecelerateInterpolator(2f)).start();
+        }
+    }
+
+    // The blocks of a page: children of the main column, and of the column inside its ScrollView.
+    // The bottom navigation bar stays still.
+    private static void collectBlocks(View view, List<View> blocks, int depth) {
+        if (view instanceof ScrollView || view instanceof NestedScrollView) {
+            if (((ViewGroup) view).getChildCount() > 0) {
+                collectBlocks(((ViewGroup) view).getChildAt(0), blocks, depth + 1);
+            }
+            return;
+        }
+        boolean column = view instanceof LinearLayout
+                && ((LinearLayout) view).getOrientation() == LinearLayout.VERTICAL;
+        if (column && depth <= 2) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                View child = group.getChildAt(i);
+                if (child instanceof BottomNavigationView) {
+                    continue;
+                }
+                if (child instanceof ScrollView || child instanceof NestedScrollView) {
+                    collectBlocks(child, blocks, depth + 1);
+                } else {
+                    blocks.add(child);
+                }
+            }
+        } else {
+            blocks.add(view);
         }
     }
 

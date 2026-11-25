@@ -40,8 +40,11 @@ public class WorkoutRepository {
 
         DocumentReference workoutReference = db.collection("users").document(uid).collection("workouts").document(String.valueOf(workout.startTime));
 
-        // Create a batch to perform multiple writes
+        // Create a batch to perform multiple writes.
+        // Firestore allows 500 writes per batch: a long workout (many reps) is split into several batches.
+        List<WriteBatch> batches = new ArrayList<>();
         WriteBatch batch = db.batch();
+        batches.add(batch);
         int writeCount = 0;
 
         // Set the workout data in the batch
@@ -53,6 +56,10 @@ public class WorkoutRepository {
         workoutData.put("prText", workout.prText);
         batch.set(workoutReference, workoutData);
         writeCount++;
+        if (writeCount % 450 == 0) {
+            batch = db.batch();
+            batches.add(batch);
+        }
 
 
         for (int i=0; i < workout.exercises.size(); i++) {
@@ -72,6 +79,10 @@ public class WorkoutRepository {
             exerciseData.put("group", exercise.group);
             batch.set(exerciseReference, exerciseData);
             writeCount++;
+            if (writeCount % 450 == 0) {
+                batch = db.batch();
+                batches.add(batch);
+            }
 
             for (int j=0; j < exercise.sets.size(); j++) {
                 // Skip sets that are not done
@@ -95,6 +106,10 @@ public class WorkoutRepository {
                 setData.put("bpmList", set.bpmList);
                 batch.set(setReference, setData);
                 writeCount++;
+                if (writeCount % 450 == 0) {
+                    batch = db.batch();
+                    batches.add(batch);
+                }
 
                 for (int k=0; k < set.repList.size(); k++) {
 
@@ -112,18 +127,21 @@ public class WorkoutRepository {
                     repData.put("speed", rep.getSpeed());
                     batch.set(repReference, repData);
                     writeCount++;
+                    if (writeCount % 450 == 0) {
+                        batch = db.batch();
+                        batches.add(batch);
+                    }
                 }
             }
         }
         Log.d("WorkoutRepository", "writeCount: " + writeCount);
 
-        if(writeCount > 400){
-            callback.onFailure(new IllegalStateException("Workout has too many records to save"));
-            return;
+        // Commit all the batches to save the workout
+        List<Task<Void>> commits = new ArrayList<>();
+        for (WriteBatch part : batches) {
+            commits.add(part.commit());
         }
-
-        // Commit the batch to save the workout
-        batch.commit()
+        Tasks.whenAll(commits)
                 .addOnSuccessListener(unused -> {
                     Log.d("WorkoutRepository", "Workout saved successfully");
                     callback.onSuccess();
@@ -328,6 +346,82 @@ public class WorkoutRepository {
                 .addOnFailureListener(e ->{
                     callback.onFailure(e);
                 });
+    }
+
+    // ---------- Templates: users/{uid}/templates/{templateId} ----------
+
+    public void saveTemplate(Template template) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            return;
+        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", template.name);
+        data.put("color", template.color);
+        data.put("exercises", template.exercises);
+        data.put("equipment", template.equipment);
+        data.put("sets", template.sets);
+        data.put("createdAt", template.createdAt);
+        db.collection("users").document(user.getUid()).collection("templates").document(template.id)
+                .set(data)
+                .addOnFailureListener(e -> Log.e("WorkoutRepository", "Failed to save template", e));
+    }
+
+    public void deleteTemplate(String templateId) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            return;
+        }
+        db.collection("users").document(user.getUid()).collection("templates").document(templateId)
+                .delete()
+                .addOnFailureListener(e -> Log.e("WorkoutRepository", "Failed to delete template", e));
+    }
+
+    public void getTemplates(getTemplatesCallback callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            callback.onFailure(new IllegalStateException("No user is logged in"));
+            return;
+        }
+        db.collection("users").document(user.getUid()).collection("templates")
+                .orderBy("createdAt")
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<Template> templates = new ArrayList<>();
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        try {
+                            Template template = new Template();
+                            template.id = doc.getId();
+                            template.name = doc.getString("name");
+                            String color = doc.getString("color");
+                            template.color = color != null ? color : "lime";
+                            Long created = doc.getLong("createdAt");
+                            template.createdAt = created != null ? created : 0;
+                            List<?> exercises = (List<?>) doc.get("exercises");
+                            List<?> equipment = (List<?>) doc.get("equipment");
+                            List<?> sets = (List<?>) doc.get("sets");
+                            for (int i = 0; exercises != null && i < exercises.size(); i++) {
+                                template.exercises.add(String.valueOf(exercises.get(i)));
+                                template.equipment.add(equipment != null && i < equipment.size()
+                                        ? String.valueOf(equipment.get(i)) : WorkoutOptions.MACHINE);
+                                template.sets.add(sets != null && i < sets.size()
+                                        ? ((Number) sets.get(i)).intValue() : 3);
+                            }
+                            if (template.name != null) {
+                                templates.add(template);
+                            }
+                        } catch (Exception e) {
+                            Log.e("WorkoutRepository", "Bad template " + doc.getId(), e);
+                        }
+                    }
+                    callback.onSuccess(templates);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public interface getTemplatesCallback {
+        void onSuccess(List<Template> templates);
+        void onFailure(Exception e);
     }
 
     public interface saveWorkoutCallback {

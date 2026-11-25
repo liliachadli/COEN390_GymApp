@@ -82,11 +82,19 @@
             android:theme="@style/Theme.SmartGymTracker.Workout" />
 
         <activity
+            android:name=".TemplateEditorActivity"
+            android:screenOrientation="portrait"
+            android:exported="false"
+            android:theme="@style/Theme.SmartGymTracker.Workout"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
+        <!-- stateHidden: the keyboard only opens when the user taps a field -->
+        <activity
             android:name=".ProfileActivity"
             android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.SmartGymTracker.Workout"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <activity
             android:name=".MainActivity"

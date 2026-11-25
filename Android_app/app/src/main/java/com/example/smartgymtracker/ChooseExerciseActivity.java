@@ -26,9 +26,12 @@ import java.util.ArrayList;
 public class ChooseExerciseActivity extends AppCompatActivity {
 
     public static final String EXTRA_PLAN = "plan";
+    public static final String EXTRA_PICK = "pick";         // pick for a template: gives the list back
+    public static final String RESULT_PICKED = "picked";
     private static final int SETS_PER_EXERCISE = 3;
 
     private boolean planMode;
+    private boolean pickMode;
     private final ArrayList<String> picked = new ArrayList<>();   // "name|equipment", in the order picked
     private MaterialButton startButton;
 
@@ -50,10 +53,11 @@ public class ChooseExerciseActivity extends AppCompatActivity {
         filterCable = findViewById(R.id.filter_cable);
         filterMachine = findViewById(R.id.filter_machine);
 
-        planMode = getIntent().getBooleanExtra(EXTRA_PLAN, false);
+        pickMode = getIntent().getBooleanExtra(EXTRA_PICK, false);
+        planMode = getIntent().getBooleanExtra(EXTRA_PLAN, false) || pickMode;
         startButton = findViewById(R.id.start_plan_button);
         if (planMode) {
-            ((TextView) findViewById(R.id.page_title)).setText("Plan your workout");
+            ((TextView) findViewById(R.id.page_title)).setText(pickMode ? "Add exercises" : "Plan your workout");
             startButton.setVisibility(View.VISIBLE);
             startButton.setOnClickListener(v -> startPlannedWorkout());
             if (savedInstanceState != null) {
@@ -207,13 +211,25 @@ public class ChooseExerciseActivity extends AppCompatActivity {
     private void updateStartButton() {
         int count = picked.size();
         startButton.setEnabled(count > 0);
-        startButton.setText(count == 0 ? "Pick your exercises"
-                : "Start workout · " + count + (count == 1 ? " exercise" : " exercises"));
+        String exercises = count + (count == 1 ? " exercise" : " exercises");
+        if (pickMode) {
+            startButton.setText(count == 0 ? "Pick your exercises" : "Add " + exercises);
+        } else {
+            startButton.setText(count == 0 ? "Pick your exercises" : "Start workout · " + exercises);
+        }
     }
 
     // The workout (and its timer) starts only now, with the exercises already in it
     private void startPlannedWorkout() {
         if (picked.isEmpty() || WorkoutUi.tooFast()) {
+            return;
+        }
+        if (pickMode) {
+            // Template editor: give the picked exercises back
+            Intent result = new Intent();
+            result.putStringArrayListExtra(RESULT_PICKED, picked);
+            setResult(RESULT_OK, result);
+            finish();
             return;
         }
         if (!WorkoutSession.active) {

@@ -2,6 +2,8 @@ package com.example.smartgymtracker;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -40,6 +42,9 @@ public class ProfileActivity extends AppCompatActivity implements NavBar.LeaveGu
     private TextView initials;
 
     private boolean kgSelected = false;   // unit chosen on this screen (saved only with Save)
+    private boolean saving = false;
+    private final Handler loadHandler = new Handler(Looper.getMainLooper());
+    private final Handler saveHandler = new Handler(Looper.getMainLooper());
     private String savedState = "";       // what the fields looked like after the last load or save
 
     @Override
@@ -136,6 +141,7 @@ public class ProfileActivity extends AppCompatActivity implements NavBar.LeaveGu
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        loadHandler.removeCallbacksAndMessages(null);
         // isFinishing() is false when the page is only rebuilt (light/dark mode)
         if (firstTime && isFinishing()) {
             firstTimeOpen = false;
@@ -186,12 +192,40 @@ public class ProfileActivity extends AppCompatActivity implements NavBar.LeaveGu
         }
     }
 
+    // The fields are locked until the profile is loaded, otherwise the loaded values
+    // would replace what the user starts typing. Unlocked after 5 s at most (no internet).
     private void loadProfile() {
         if (user == null) {
             return;
         }
+        setFieldsEnabled(false);
+        loadHandler.postDelayed(() -> setFieldsEnabled(true), 5000);
         FirebaseFirestore.getInstance().collection("users").document(user.getUid()).get()
-                .addOnSuccessListener(this::showProfile);
+                .addOnSuccessListener(doc -> {
+                    loadHandler.removeCallbacksAndMessages(null);
+                    if (!isFinishing() && !isDestroyed() && !hasTypedSomething()) {
+                        showProfile(doc);
+                    }
+                    setFieldsEnabled(true);
+                })
+                .addOnFailureListener(e -> {
+                    loadHandler.removeCallbacksAndMessages(null);
+                    setFieldsEnabled(true);
+                });
+    }
+
+    // True if the user changed a field while the profile was loading (don't overwrite it)
+    private boolean hasTypedSomething() {
+        return !currentState().equals(savedState);
+    }
+
+    private void setFieldsEnabled(boolean enabled) {
+        View[] fields = {firstName, lastName, birthDate, weight, height};
+        for (View field : fields) {
+            field.setEnabled(enabled);
+            field.setAlpha(enabled ? 1f : 0.5f);
+        }
+        findViewById(R.id.save_button).setEnabled(enabled);
     }
 
     private void showProfile(DocumentSnapshot doc) {
@@ -233,12 +267,16 @@ public class ProfileActivity extends AppCompatActivity implements NavBar.LeaveGu
     // thenLeave: what to do after saving (leave the screen), or null to stay
     private void saveProfile(Runnable thenLeave) {
         if (firstName.getText().toString().trim().isEmpty()) {
-            Toast.makeText(this, "Please enter your first name", Toast.LENGTH_SHORT).show();
+            firstName.setError("Please enter your first name");
+            firstName.requestFocus();
             return;
         }
-        if (user == null) {
+        if (user == null || saving) {
             return;
         }
+        saving = true;
+        View saveButton = findViewById(R.id.save_button);
+        saveButton.setEnabled(false);
 
         // TODO (Person 5): check these field names match the database format
         Map<String, Object> data = new HashMap<>();
@@ -252,21 +290,52 @@ public class ProfileActivity extends AppCompatActivity implements NavBar.LeaveGu
         data.put("units", kgSelected ? "kg" : "lbs");
         data.put("profileDone", true);
 
+        // Firestore keeps the change on the phone right away and uploads it when it can.
+        // Without internet it never says "success", so after 4 s we continue like it was saved.
+        boolean[] done = {false};
+        Runnable whenSaved = () -> {
+            if (done[0]) {
+                return;
+            }
+            done[0] = true;
+            saving = false;
+            saveButton.setEnabled(true);
+            showInitials();
+            Units.useKg = kgSelected;
+            savedState = currentState();
+            Effects.bump(initials);
+            if (thenLeave != null) {
+                thenLeave.run();
+            } else if (firstTime) {
+                finish();
+            }
+        };
+        saveHandler.postDelayed(() -> {
+            if (!done[0]) {
+                Toast.makeText(this, "Saved on the phone, it will upload when you are back online", Toast.LENGTH_LONG).show();
+                whenSaved.run();
+            }
+        }, 4000);
+
         FirebaseFirestore.getInstance().collection("users").document(user.getUid())
                 .set(data, SetOptions.merge())
                 .addOnSuccessListener(unused -> {
-                    Toast.makeText(this, "Profile saved", Toast.LENGTH_SHORT).show();
-                    showInitials();
-                    Units.useKg = kgSelected;
-                    savedState = currentState();
-                    if (thenLeave != null) {
-                        thenLeave.run();
-                    } else if (firstTime) {
-                        finish();
+                    saveHandler.removeCallbacksAndMessages(null);
+                    if (!done[0]) {
+                        Toast.makeText(this, "Profile saved", Toast.LENGTH_SHORT).show();
                     }
+                    whenSaved.run();
                 })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Could not save the profile", Toast.LENGTH_LONG).show());
+                .addOnFailureListener(e -> {
+                    saveHandler.removeCallbacksAndMessages(null);
+                    if (done[0]) {
+                        return;
+                    }
+                    done[0] = true;
+                    saving = false;
+                    saveButton.setEnabled(true);
+                    Toast.makeText(this, "Could not save the profile", Toast.LENGTH_LONG).show();
+                });
     }
 
     private void sendPasswordEmail() {
@@ -282,6 +351,7 @@ public class ProfileActivity extends AppCompatActivity implements NavBar.LeaveGu
         FirebaseAuth.getInstance().signOut();
         WorkoutSession.reset();
         WorkoutHistory.clearHistory();
+        TemplateStore.clear();
         Units.useKg = false;
 
         Intent intent = new Intent(this, LoginActivity.class);
