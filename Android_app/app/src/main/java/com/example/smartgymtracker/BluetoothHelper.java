@@ -96,7 +96,7 @@ public class BluetoothHelper {
                 if (!hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
                     return;
                 }
-                scanner.stopScan(scanCallbacks[0]);
+                safeStopScan(0);
                 scanning[0] = false;
                 handler.removeCallbacksAndMessages(service_UUIDs[0]);
 
@@ -120,7 +120,7 @@ public class BluetoothHelper {
                 if (!hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
                     return;
                 }
-                scanner.stopScan(scanCallbacks[1]);
+                safeStopScan(1);
                 scanning[1] = false;
                 handler.removeCallbacksAndMessages(service_UUIDs[1]);
 
@@ -183,7 +183,8 @@ public class BluetoothHelper {
                     else
                         sendStatus("Heart Rate Tracker service not found");
 
-                    if(activityClass.equals("MainActivity"))
+                    // Also when a set is running: a tracker that reconnects in the middle of a set keeps sending
+                    if("MainActivity".equals(activityClass) || "SetDetailsActivity".equals(activityClass))
                         turnOnNotifications(0);
 
                 } else {
@@ -264,7 +265,7 @@ public class BluetoothHelper {
                     else
                         sendStatus("Rep Tracker service not found");
 
-                    if(activityClass.equals("MainActivity"))
+                    if("MainActivity".equals(activityClass) || "SetDetailsActivity".equals(activityClass))
                         turnOnNotifications(1);
 
                 } else {
@@ -309,8 +310,9 @@ public class BluetoothHelper {
         if (scanner == null && bluetoothAdapter != null) {
             scanner = bluetoothAdapter.getBluetoothLeScanner();
         }
-        if (scanner == null) {
+        if (scanner == null || !isBluetoothEnabled()) {
             Log.e("BluetoothHelper", "Bluetooth is off, cannot scan");
+            sendStatus("Bluetooth is off");
             return;
         }
 
@@ -330,17 +332,24 @@ public class BluetoothHelper {
                         Log.e("BluetoothHelper", "BLUETOOTH_SCAN permission missing");
                         return;
                     }
-                    scanner.stopScan(scanCallbacks[deviceNum]);
+                    safeStopScan(deviceNum);
                     sendStatus(trackerType + " Tracker not found. Is the device turned on?");
                 }
             }, service_UUID,10000);
 
             scanning[deviceNum] = true;
             sendStatus("Searching for " + trackerType + " Tracker...");
-            scanner.startScan(filters, scanSettings, scanCallbacks[deviceNum]);
+            try {
+                scanner.startScan(filters, scanSettings, scanCallbacks[deviceNum]);
+            } catch (Exception e) {
+                // Bluetooth was turned off at the same moment
+                Log.e("BluetoothHelper", "Could not start the scan", e);
+                scanning[deviceNum] = false;
+                handler.removeCallbacksAndMessages(service_UUID);
+            }
         } else {
             scanning[deviceNum] = false;
-            scanner.stopScan(scanCallbacks[deviceNum]);
+            safeStopScan(deviceNum);
         }
     }
 
@@ -370,11 +379,20 @@ public class BluetoothHelper {
             desc_value = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
         }
 
-        btGatts[deviceNum].setCharacteristicNotification(characteristic, enable);
+        try {
+            btGatts[deviceNum].setCharacteristicNotification(characteristic, enable);
 
-        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString(CCC_DESCRIPTOR_UUID));
-        descriptor.setValue(desc_value);
-        btGatts[deviceNum].writeDescriptor(descriptor);
+            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString(CCC_DESCRIPTOR_UUID));
+            if (descriptor == null) {
+                Log.e("BluetoothHelper", "Notification descriptor missing");
+                return;
+            }
+            descriptor.setValue(desc_value);
+            btGatts[deviceNum].writeDescriptor(descriptor);
+        } catch (Exception e) {
+            // The tracker disconnected at the same moment
+            Log.e("BluetoothHelper", "Could not change notifications", e);
+        }
     }
 
     // Stop scanning and drop the connection (call from MainActivity.onDestroy)
@@ -384,17 +402,33 @@ public class BluetoothHelper {
                 || !hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
             return;
         }
-        if (scanning[deviceNum] && scanner != null) {
-            scanner.stopScan(scanCallbacks[deviceNum]);
+        if (scanning[deviceNum]) {
+            safeStopScan(deviceNum);
             scanning[deviceNum] = false;
         }
         if (btGatts[deviceNum] != null) {
-            btGatts[deviceNum].disconnect();
-            btGatts[deviceNum].close();
+            try {
+                btGatts[deviceNum].disconnect();
+                btGatts[deviceNum].close();
+            } catch (Exception e) {
+                Log.e("BluetoothHelper", "Error while disconnecting", e);
+            }
             btGatts[deviceNum] = null;
         }
 
         sendConnection(deviceNum,false);
+    }
+
+    // Stopping a scan throws if Bluetooth was just turned off
+    private void safeStopScan(int deviceNum) {
+        if (scanner == null || !hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
+            return;
+        }
+        try {
+            scanner.stopScan(scanCallbacks[deviceNum]);
+        } catch (Exception e) {
+            Log.e("BluetoothHelper", "Could not stop the scan", e);
+        }
     }
 
     // BLUETOOTH_SCAN / BLUETOOTH_CONNECT only exist on Android 12+; older phones use location instead
@@ -408,14 +442,20 @@ public class BluetoothHelper {
 
     // Shows a short status message on the screen
     private void sendStatus(String text) {
-        final BluetoothActivity activity = activityRef.get();
+        final BluetoothActivity activity = activityRef == null ? null : activityRef.get();
         if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
             activity.runOnUiThread(() -> activity.showStatus(text));
         }
     }
 
     private void sendConnection(int deviceNum, boolean connected){
-        final BluetoothActivity activity = activityRef.get();
+        // Keep the connection state right even when no Bluetooth page is open
+        if (deviceNum == 0) {
+            DeviceState.heartConnected = connected;
+        } else if (deviceNum == 1) {
+            DeviceState.motionConnected = connected;
+        }
+        final BluetoothActivity activity = activityRef == null ? null : activityRef.get();
         if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
             activity.runOnUiThread(() -> activity.showConnection(deviceNum, connected));
         }

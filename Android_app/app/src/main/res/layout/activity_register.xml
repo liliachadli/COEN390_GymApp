@@ -13,7 +13,10 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingStart="@dimen/screen_side"
+        android:paddingTop="24dp"
+        android:paddingEnd="@dimen/screen_side"
+        android:paddingBottom="24dp">
 
         <!-- Logo -->
         <FrameLayout

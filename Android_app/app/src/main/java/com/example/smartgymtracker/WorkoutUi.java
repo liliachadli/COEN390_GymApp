@@ -14,6 +14,18 @@ import androidx.core.content.ContextCompat;
 // Small helpers shared by the screens, so each screen stays short
 public class WorkoutUi {
 
+    private static long lastTap = 0;
+
+    // True if the user tapped again less than 0.6 s ago (stops double taps opening a page twice)
+    public static boolean tooFast() {
+        long now = android.os.SystemClock.elapsedRealtime();
+        if (now - lastTap < 600) {
+            return true;
+        }
+        lastTap = now;
+        return false;
+    }
+
     public static int color(Context context, int colorRes) {
         return ContextCompat.getColor(context, colorRes);
     }

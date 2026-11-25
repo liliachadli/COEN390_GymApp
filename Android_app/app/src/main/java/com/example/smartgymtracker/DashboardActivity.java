@@ -80,8 +80,8 @@ public class DashboardActivity extends BluetoothActivity {
             startTitle.setText("Resume workout");
             startSubtitle.setText(WorkoutSession.name + " is still running");
         } else {
-            startTitle.setText("Start empty workout");
-            startSubtitle.setText("Add exercises as you go");
+            startTitle.setText("Start a workout");
+            startSubtitle.setText("Pick your exercises, then go");
         }
 
         int count = WorkoutHistory.countThisWeek();
@@ -97,10 +97,17 @@ public class DashboardActivity extends BluetoothActivity {
     }
 
     private void startWorkout() {
-        if (!WorkoutSession.active) {
-            WorkoutSession.start("Workout");
+        if (WorkoutUi.tooFast()) {
+            return;
         }
-        startActivity(new Intent(this, WorkoutActivity.class));
+        if (WorkoutSession.active) {
+            startActivity(new Intent(this, WorkoutActivity.class));
+        } else {
+            // Pick the exercises first; the timer starts when the user taps Start
+            Intent intent = new Intent(this, ChooseExerciseActivity.class);
+            intent.putExtra(ChooseExerciseActivity.EXTRA_PLAN, true);
+            startActivity(intent);
+        }
     }
 
     // Template cards, 2 per row
@@ -141,6 +148,7 @@ public class DashboardActivity extends BluetoothActivity {
             View empty = new View(this);
             row.addView(empty, new LinearLayout.LayoutParams(0, 1, 1));
         }
+        Effects.cascade(grid);
     }
 
     // Shows the first name, and opens the profile screen if it was never filled (APP-1.3)
@@ -161,7 +169,10 @@ public class DashboardActivity extends BluetoothActivity {
                     if (firstName != null && !firstName.isEmpty()) {
                         greeting.setText(hello + ", " + firstName);
                     }
-                    if (!Boolean.TRUE.equals(doc.getBoolean("profileDone"))) {
+                    // Open the first-time profile page only once (not again when the page is rebuilt,
+                    // e.g. after switching light/dark mode)
+                    if (!Boolean.TRUE.equals(doc.getBoolean("profileDone"))
+                            && !ProfileActivity.firstTimeOpen && !isFinishing() && !isDestroyed()) {
                         Intent intent = new Intent(this, ProfileActivity.class);
                         intent.putExtra(ProfileActivity.EXTRA_FIRST_TIME, true);
                         startActivity(intent);

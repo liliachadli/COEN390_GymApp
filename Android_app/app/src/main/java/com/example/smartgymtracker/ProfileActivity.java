@@ -8,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,6 +26,7 @@ import java.util.Map;
 public class ProfileActivity extends AppCompatActivity implements NavBar.LeaveGuard {
 
     public static final String EXTRA_FIRST_TIME = "firstTime";
+    public static boolean firstTimeOpen = false;   // the first-time profile page is already on screen
 
     private boolean firstTime;
     private FirebaseUser user;
@@ -46,6 +48,9 @@ public class ProfileActivity extends AppCompatActivity implements NavBar.LeaveGu
         setContentView(R.layout.activity_profile);
 
         firstTime = getIntent().getBooleanExtra(EXTRA_FIRST_TIME, false);
+        if (firstTime) {
+            firstTimeOpen = true;
+        }
         user = FirebaseAuth.getInstance().getCurrentUser();
 
         firstName = findViewById(R.id.first_name_input);
@@ -74,6 +79,22 @@ public class ProfileActivity extends AppCompatActivity implements NavBar.LeaveGu
             weight.setHint(kgSelected ? "kg" : "lbs");
         });
 
+        // Light / dark mode: changes right away, no need to press Save
+        MaterialButtonToggleGroup themeGroup = findViewById(R.id.theme_group);
+        int theme = ThemeSetting.get(this);
+        themeGroup.check(theme == ThemeSetting.LIGHT ? R.id.theme_light
+                : theme == ThemeSetting.DARK ? R.id.theme_dark : R.id.theme_system);
+        themeGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) {
+                return;
+            }
+            int chosen = checkedId == R.id.theme_light ? ThemeSetting.LIGHT
+                    : checkedId == R.id.theme_dark ? ThemeSetting.DARK : ThemeSetting.SYSTEM;
+            if (chosen != ThemeSetting.get(this)) {
+                ThemeSetting.set(this, chosen);
+            }
+        });
+
         if (firstTime) {
             ((TextView) findViewById(R.id.profile_title)).setText("Your profile");
             findViewById(R.id.profile_first_time).setVisibility(View.VISIBLE);
@@ -100,8 +121,38 @@ public class ProfileActivity extends AppCompatActivity implements NavBar.LeaveGu
             }
         });
 
+        if (savedInstanceState != null) {
+            // The page was rebuilt (light/dark mode changed): Android puts back what was typed,
+            // so don't reload the profile from the database over it
+            kgSelected = savedInstanceState.getBoolean("kgSelected", false);
+            savedState = savedInstanceState.getString("savedState", "");
+            weight.setHint(kgSelected ? "kg" : "lbs");
+            return;
+        }
         savedState = currentState();
         loadProfile();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // isFinishing() is false when the page is only rebuilt (light/dark mode)
+        if (firstTime && isFinishing()) {
+            firstTimeOpen = false;
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("kgSelected", kgSelected);
+        outState.putString("savedState", savedState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        showInitials();
     }
 
     // All the fields in one string, to see if something changed since the last save

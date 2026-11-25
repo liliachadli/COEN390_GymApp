@@ -2,6 +2,7 @@
 <!-- One template on the dashboard -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Gym.Card"
+    android:stateListAnimator="@animator/press"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_weight="1"

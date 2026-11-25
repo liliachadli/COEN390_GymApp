@@ -6,11 +6,11 @@
     android:viewportWidth="32"
     android:viewportHeight="30">
     <group android:translateX="-8" android:translateY="-3">
-        <path android:fillColor="#FF3A3F46" android:pathData="M19.5,7.5a4.5,4.5 0,1 0,9 0a4.5,4.5 0,1 0,-9 0z" />
-        <path android:fillColor="#FF3A3F46" android:pathData="M14,15h20l-3,16H17z" />
-        <path android:strokeColor="#FF3A3F46" android:strokeWidth="4.5" android:strokeLineCap="round" android:pathData="M14,16.5l-3.6,13.5M34,16.5l3.6,13.5" />
-        <path android:strokeColor="#FF3A3F46" android:strokeWidth="5.5" android:strokeLineCap="round" android:pathData="M20,31.5l-1,13M28,31.5l1,13" />
-        <path android:fillColor="#FF4CC9F0" android:pathData="M15.3,17l7.2,2.2v9.8h-5zM32.7,17l-7.2,2.2v9.8h5z" />
-        <path android:strokeColor="#FF0F2630" android:strokeWidth="0.8" android:strokeLineCap="round" android:pathData="M24,16v15" />
+        <path android:fillColor="@color/gym_figure" android:pathData="M19.5,7.5a4.5,4.5 0,1 0,9 0a4.5,4.5 0,1 0,-9 0z" />
+        <path android:fillColor="@color/gym_figure" android:pathData="M14,15h20l-3,16H17z" />
+        <path android:strokeColor="@color/gym_figure" android:strokeWidth="4.5" android:strokeLineCap="round" android:pathData="M14,16.5l-3.6,13.5M34,16.5l3.6,13.5" />
+        <path android:strokeColor="@color/gym_figure" android:strokeWidth="5.5" android:strokeLineCap="round" android:pathData="M20,31.5l-1,13M28,31.5l1,13" />
+        <path android:fillColor="@color/gym_cyan" android:pathData="M15.3,17l7.2,2.2v9.8h-5zM32.7,17l-7.2,2.2v9.8h5z" />
+        <path android:strokeColor="@color/gym_cyan_tint" android:strokeWidth="0.8" android:strokeLineCap="round" android:pathData="M24,16v15" />
     </group>
 </vector>

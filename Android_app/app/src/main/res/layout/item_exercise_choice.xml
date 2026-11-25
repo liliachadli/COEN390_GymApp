@@ -2,6 +2,7 @@
 <!-- One exercise to add (cable or machine version) -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:stateListAnimator="@animator/press"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
@@ -44,9 +45,23 @@
         android:textStyle="bold" />
 
     <ImageView
+        android:id="@+id/choice_icon"
         android:layout_width="22dp"
         android:layout_height="22dp"
         android:importantForAccessibility="no"
         android:src="@drawable/ic_plus"
         app:tint="@color/gym_accent" />
+
+    <!-- Order number when the exercise is picked for the plan -->
+    <TextView
+        android:id="@+id/choice_number"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:background="@drawable/bg_dot"
+        android:backgroundTint="@color/gym_accent"
+        android:gravity="center"
+        android:textColor="@color/gym_on_accent"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
 </LinearLayout>

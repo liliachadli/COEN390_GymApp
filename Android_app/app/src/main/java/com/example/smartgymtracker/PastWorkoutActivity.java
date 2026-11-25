@@ -19,6 +19,7 @@ import java.util.Locale;
 public class PastWorkoutActivity extends AppCompatActivity {
 
     public static final String EXTRA_WORKOUT_INDEX = "workoutIndex";
+    public static final String EXTRA_CELEBRATE = "celebrate";   // just finished: confetti
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +32,10 @@ public class PastWorkoutActivity extends AppCompatActivity {
             return;
         }
         PastWorkout workout = WorkoutHistory.workouts.get(workoutIndex);
+
+        if (savedInstanceState == null && getIntent().getBooleanExtra(EXTRA_CELEBRATE, false)) {
+            findViewById(R.id.back_button).post(() -> Effects.confetti(this));
+        }
 
         findViewById(R.id.back_button).setOnClickListener(v -> finish());
         ((TextView) findViewById(R.id.page_title)).setText(workout.name);

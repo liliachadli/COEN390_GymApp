@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Big "Start workout" card on the home page: lime gradient -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:angle="315"
+        android:endColor="@color/gym_accent_deep"
+        android:startColor="@color/gym_accent" />
+    <corners android:radius="14dp" />
+</shape>
