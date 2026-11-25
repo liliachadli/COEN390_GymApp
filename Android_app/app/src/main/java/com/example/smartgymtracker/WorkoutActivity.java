@@ -32,7 +32,7 @@ import java.util.Locale;
 
 // 1.1 · Workout page: timer and the list of exercises (APP-1.7)
 public class WorkoutActivity extends BluetoothActivity {
-
+    private Toast currentToast;
     public static final String EXTRA_EXERCISE_INDEX = "exerciseIndex";
     public static final String EXTRA_SET_INDEX = "setIndex";
     private TextView nameText;
@@ -335,6 +335,9 @@ public class WorkoutActivity extends BluetoothActivity {
     @Override
     public void showStatus(String text) {
         Log.i("WorkoutActivity", "BLE status: " + text);
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+        if(currentToast != null)
+            currentToast.cancel();
+        currentToast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
+        currentToast.show();
     }
 }

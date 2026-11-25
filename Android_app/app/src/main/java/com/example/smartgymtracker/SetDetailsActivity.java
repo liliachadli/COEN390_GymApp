@@ -24,7 +24,7 @@ import java.util.List;
 
 // 1.1.2 · Set details: live reps, ROM, TUT and heart rate during one set (APP-1.8)
 public class SetDetailsActivity extends BluetoothActivity implements SensorListener {
-
+    private Toast currentToast;
     private SetEntry set;
     private final List<RepData> reps = new ArrayList<>();
     private final List<Integer> bpms = new ArrayList<>();
@@ -48,7 +48,7 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
     private int lastState = SET_WAITING;
     private float maxROM = 0;
     private int lastGoodBPM = 0;
-    private int recoveryBPM = 0;
+    private List<Integer> recoveryBPM = new ArrayList<>();
 
     // Animations
     private View heartIcon;
@@ -135,7 +135,12 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             savedRestSet = WorkoutSession.restAfterSet;
             WorkoutSession.stopRest();
             restStopped = true;
+        } else if (state==SET_MOVING){
+            finishHint.setText("");
+            finishButton.setEnabled(false);
         } else if (state == SET_DONE) {
+            recoveryBPM.clear();
+            WorkoutSession.startRest(set);
             finishButton.setEnabled(true);
             Effects.stop(finishAnimator, finishButton);
             finishAnimator = Effects.breathe(finishButton, 1.06f);   // "tap me"
@@ -147,6 +152,9 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             updateStats();
             restoreRest();
             finishHint.setText("Not a real set. Start moving again when you are ready.");
+        } else if (state == SET_WAITING) {
+            finishHint.setText("");
+            finishButton.setEnabled(false);
         }
     }
 
@@ -163,9 +171,13 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
 
     @Override
     public void onHeartRate(int bpm) {
-        bpms.add(bpm);
+        if(bpm>0 || bpms.isEmpty())
+            bpms.add(bpm);
         graph.setValues(bpms);
         currentBpm.setText(bpm + " BPM");
+
+        if(lastState == SET_DONE && bpm > 0)
+            recoveryBPM.add(bpm);
 
         int total = 0;
         for (int value : bpms) {
@@ -249,9 +261,8 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
         set.bpmList = new ArrayList<>(bpms);
         set.reps = reps.size();
         set.done = true;
-        if(recoveryBPM > 0)
-            WorkoutSession.recoveryBPMs.add(recoveryBPM);
-        WorkoutSession.startRest(set);
+        if(!recoveryBPM.isEmpty())
+            WorkoutSession.recoveryBPMs.addAll(recoveryBPM);
         finish();
     }
 
@@ -283,14 +294,11 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             int timeMs = wrapped.getInt();
             int bpm = wrapped.get() & 0xFF;   // unsigned, or anything over 127 BPM reads negative
             int quality = wrapped.get();
-            if(quality == 0)
+            if(quality == 0 && bpm!=0)
                 bpm = lastGoodBPM;
-            if(bpm == 0)
-                return;   // no reading yet, keep it out of the graph and the average
+
             lastGoodBPM = bpm;
             onHeartRate(bpm);
-            if(bpm > 0)
-                recoveryBPM = bpm;
         }
         else{
             Log.e("SetDetailsActivity", "Bluetooth Notification Error: unknown packet");
@@ -305,9 +313,6 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             int sequence = wrapped.getShort();
             int timeMs = wrapped.getInt();
             int state = wrapped.get();
-            if(lastState == SET_DONE){
-                return;
-            }
             if((state == TRACKER_IDLE || state == TRACKER_START) && lastState == SET_WAITING) {
                 onState(SET_WAITING);
             }
@@ -335,9 +340,6 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             float ROM = wrapped.getFloat();
             int liftMs = wrapped.getShort() & 0xFFFF;
             int lowerMs = wrapped.getShort() & 0xFFFF;
-            if(lastState == SET_DONE || validRep == 0){
-                return;   // the tracker sends partial reps too, with validRep = 0
-            }
             RepData rep = new RepData(calculateROMPercentage(ROM), liftMs, lowerMs);
             onRep(rep);
         }
@@ -361,6 +363,9 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
     @Override
     public void showStatus(String text){
         Log.i("SetDetailsActivity", "BLE status: " + text);
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+        if(currentToast != null)
+            currentToast.cancel();
+        currentToast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
+        currentToast.show();
     }
 }

@@ -178,8 +178,12 @@ public class BluetoothHelper {
                             characteristic = services.get(i).getCharacteristic(UUID.fromString(char_UUIDs[0]));
                         }
                     }
-                    if (characteristic!=null)
+                    if (characteristic!=null) {
                         characteristics[0] = characteristic;
+                        if (activityClass.equals("SetDetailsActivity")) {
+                            turnOnNotifications(0);
+                        }
+                    }
                     else
                         sendStatus("Heart Rate Tracker service not found");
 
@@ -260,8 +264,12 @@ public class BluetoothHelper {
                             characteristic = services.get(i).getCharacteristic(UUID.fromString(char_UUIDs[1]));
                         }
                     }
-                    if (characteristic!=null)
+                    if (characteristic!=null) {
                         characteristics[1] = characteristic;
+                        if (activityClass.equals("SetDetailsActivity")) {
+                            turnOnNotifications(1);
+                        }
+                    }
                     else
                         sendStatus("Rep Tracker service not found");
 
