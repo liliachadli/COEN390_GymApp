@@ -10,12 +10,19 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.button.MaterialButtonToggleGroup;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 // 2 · History: list of past workouts, newest first (APP-1.10)
 public class HistoryActivity extends AppCompatActivity {
+
+    private boolean listAnimated = false;
+    private static boolean showStats = true;   // last tab opened, kept when coming back
+    private LinearLayout stats;
+    private int shownCount = -1;               // redraw the charts only when the history changed
 
     private LinearLayout list;
 
@@ -24,6 +31,32 @@ public class HistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
         list = findViewById(R.id.history_list);
+        stats = findViewById(R.id.stats_section);
+
+        // Stats | Workouts tabs
+        MaterialButtonToggleGroup tabs = findViewById(R.id.history_tabs);
+        tabs.check(showStats ? R.id.tab_stats : R.id.tab_workouts);
+        tabs.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) {
+                return;
+            }
+            showStats = checkedId == R.id.tab_stats;
+            showTab(true);
+        });
+        showTab(false);
+    }
+
+    private void showTab(boolean animate) {
+        stats.setVisibility(showStats ? View.VISIBLE : View.GONE);
+        findViewById(R.id.workouts_section).setVisibility(showStats ? View.GONE : View.VISIBLE);
+        if (animate) {
+            if (showStats) {
+                shownCount = WorkoutHistory.workouts.size();
+                StatsSection.show(stats);
+            } else {
+                Effects.cascade(list);
+            }
+        }
     }
 
     @Override
@@ -38,6 +71,10 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void showWorkouts() {
+        if (showStats && shownCount != WorkoutHistory.workouts.size()) {
+            shownCount = WorkoutHistory.workouts.size();
+            StatsSection.show(stats);
+        }
         list.removeAllViews();
         findViewById(R.id.empty_text).setVisibility(
                 WorkoutHistory.workouts.isEmpty() ? View.VISIBLE : View.GONE);
@@ -86,6 +123,10 @@ public class HistoryActivity extends AppCompatActivity {
                 startActivity(intent);
             });
             list.addView(card);
+        }
+        if (!listAnimated && list.getChildCount() > 0) {
+            Effects.cascade(list);   // cards come in one by one, the first time only
+            listAnimated = true;
         }
     }
 }

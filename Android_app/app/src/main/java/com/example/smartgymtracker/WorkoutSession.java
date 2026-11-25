@@ -2,6 +2,9 @@ package com.example.smartgymtracker;
 
 import android.os.SystemClock;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +12,7 @@ import java.util.List;
 public class WorkoutSession {
 
     public static boolean active = false;
+    public static String userId = "";  // who started it (the saved copy only comes back for this user)
     public static String name = "Workout";
     public static long startTime;     // System.currentTimeMillis() when it started
     public static long startElapsed;  // SystemClock.elapsedRealtime(), used by the timer
@@ -28,6 +32,17 @@ public class WorkoutSession {
         restStartElapsed = 0;
         restAfterSet = null;
         recoveryBPMs = new ArrayList<>();
+        userId = currentUserId();
+        WorkoutStore.save();
+    }
+
+    private static String currentUserId() {
+        try {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            return user != null ? user.getUid() : "";
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     public static ExerciseEntry addExercise(String exerciseName, String equipment, int setCount) {
@@ -40,6 +55,7 @@ public class WorkoutSession {
             exercise.sets.add(new SetEntry(weight));
         }
         exercises.add(exercise);
+        WorkoutStore.save();
         return exercise;
     }
 
@@ -47,6 +63,7 @@ public class WorkoutSession {
     public static void startRest(SetEntry set) {
         restStartElapsed = SystemClock.elapsedRealtime();
         restAfterSet = set;
+        WorkoutStore.save();
     }
 
     // The next set started moving: the rest ends and is saved on the previous set
@@ -56,6 +73,7 @@ public class WorkoutSession {
         }
         restStartElapsed = 0;
         restAfterSet = null;
+        WorkoutStore.save();
     }
 
     public static void reset() {
@@ -63,5 +81,6 @@ public class WorkoutSession {
         exercises = new ArrayList<>();
         restStartElapsed = 0;
         restAfterSet = null;
+        WorkoutStore.clear();
     }
 }

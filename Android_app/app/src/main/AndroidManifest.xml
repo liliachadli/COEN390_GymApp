@@ -13,7 +13,14 @@
         android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <!-- Keep the workout running when the phone is locked (WorkoutService) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Phone only, in portrait: rotating the screen can't reset a page in the middle of a set -->
     <application
+        android:name=".GymApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -25,64 +32,77 @@
 
         <activity
             android:name=".DashboardActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.SmartGymTracker.Workout" />
 
         <activity
             android:name=".WorkoutActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.SmartGymTracker.Workout" />
 
         <activity
             android:name=".ChooseExerciseActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.SmartGymTracker.Workout"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ExerciseDetailsActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.SmartGymTracker.Workout"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".SetDetailsActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
             android:exported="false"
             android:theme="@style/Theme.SmartGymTracker.Workout" />
 
         <activity
             android:name=".HistoryActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.SmartGymTracker.Workout" />
 
         <activity
             android:name=".PastWorkoutActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.SmartGymTracker.Workout" />
 
         <activity
             android:name=".PastSetActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.SmartGymTracker.Workout" />
 
         <activity
             android:name=".ProfileActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.SmartGymTracker.Workout"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.SmartGymTracker.Workout"
             android:exported="false"/>
 
         <activity
             android:name=".RegisterActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.SmartGymTracker.Workout"
             android:exported="false"/>
 
         <activity
             android:name=".LoginActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.SmartGymTracker.Workout"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
@@ -92,6 +112,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".WorkoutService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
 
         <meta-data
             android:name="preloaded_fonts"

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Space between the screen edges and the content, used by every page -->
+    <dimen name="screen_side">24dp</dimen>
+</resources>

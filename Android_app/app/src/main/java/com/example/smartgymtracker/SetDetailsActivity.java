@@ -1,13 +1,18 @@
 package com.example.smartgymtracker;
 
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
@@ -45,6 +50,13 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
     private int lastGoodBPM = 0;
     private int recoveryBPM = 0;
 
+    // Animations
+    private View heartIcon;
+    private ObjectAnimator chipAnimator;
+    private ObjectAnimator finishAnimator;
+    private final Handler beatHandler = new Handler(Looper.getMainLooper());
+    private int beatBpm = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +66,12 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
 
         int exerciseIndex = getIntent().getIntExtra(WorkoutActivity.EXTRA_EXERCISE_INDEX, 0);
         int setIndex = getIntent().getIntExtra(WorkoutActivity.EXTRA_SET_INDEX, 0);
+        // The workout can be gone (app restarted, workout cancelled): leave instead of crashing
+        if (exerciseIndex < 0 || exerciseIndex >= WorkoutSession.exercises.size()
+                || setIndex < 0 || setIndex >= WorkoutSession.exercises.get(exerciseIndex).sets.size()) {
+            finish();
+            return;
+        }
         ExerciseEntry exercise = WorkoutSession.exercises.get(exerciseIndex);
         set = exercise.sets.get(setIndex);
 
@@ -71,6 +89,7 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
         repScroll = findViewById(R.id.rep_scroll);
         graph = findViewById(R.id.hr_graph);
         finishButton = findViewById(R.id.finish_button);
+        heartIcon = findViewById(R.id.heart_icon);
 
         findViewById(R.id.cancel_button).setOnClickListener(v -> cancelSet());
         finishButton.setOnClickListener(v -> finishSet());
@@ -93,6 +112,13 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        beatHandler.removeCallbacksAndMessages(null);
+        if (chipAnimator != null) {
+            chipAnimator.cancel();
+        }
+        if (finishAnimator != null) {
+            finishAnimator.cancel();
+        }
         if(DeviceState.heartConnected)
             bleHelp.turnOffNotifications(0);
         if(DeviceState.motionConnected)
@@ -111,6 +137,9 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             restStopped = true;
         } else if (state == SET_DONE) {
             finishButton.setEnabled(true);
+            Effects.stop(finishAnimator, finishButton);
+            finishAnimator = Effects.breathe(finishButton, 1.06f);   // "tap me"
+            Effects.tick(finishButton);
             finishHint.setText("Set over. Tap Finish to save it.");
         } else if (state == SET_CANCELLED) {
             reps.clear();
@@ -125,8 +154,11 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
     public void onRep(RepData rep) {
         reps.add(rep);
         WorkoutUi.addRepRow(repList, reps.size(), rep, R.color.gym_violet);
+        Effects.slideIn(repList.getChildAt(repList.getChildCount() - 1));
         repScroll.post(() -> repScroll.fullScroll(ScrollView.FOCUS_DOWN));
         updateStats();
+        Effects.bump(repsCount);
+        Effects.tick(repsCount);
     }
 
     @Override
@@ -140,7 +172,25 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             total += value;
         }
         avgBpm.setText("Avg " + (total / bpms.size()));
+
+        // The little heart beats at the measured rate
+        boolean wasBeating = beatBpm > 0;
+        beatBpm = bpm;
+        if (!wasBeating) {
+            beatHandler.post(beat);
+        }
     }
+
+    private final Runnable beat = new Runnable() {
+        @Override
+        public void run() {
+            if (beatBpm <= 0 || heartIcon == null) {
+                return;
+            }
+            Effects.heartBeat(heartIcon);
+            beatHandler.postDelayed(this, 60000L / Math.max(30, Math.min(220, beatBpm)));
+        }
+    };
 
     private void updateStats() {
         long tut = 0;
@@ -155,6 +205,11 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
     }
 
     private void showState(int state) {
+        Effects.stop(chipAnimator, stateChip);
+        chipAnimator = null;
+        if (state == SET_MOVING) {
+            chipAnimator = Effects.breathe(stateChip, 1.08f);
+        }
         switch (state) {
             case SET_MOVING:
                 setChip("● MOVING", R.color.gym_accent, R.color.gym_accent_tint);
@@ -201,6 +256,19 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
     }
 
     private void cancelSet() {
+        if (!reps.isEmpty() && !set.done) {
+            // Don't lose the reps by tapping Back by mistake
+            new AlertDialog.Builder(this)
+                    .setTitle("Discard this set?")
+                    .setMessage(reps.size() + (reps.size() == 1 ? " rep" : " reps") + " will not be saved.")
+                    .setPositiveButton("Discard", (dialog, which) -> {
+                        restoreRest();
+                        finish();
+                    })
+                    .setNegativeButton("Keep going", null)
+                    .show();
+            return;
+        }
         restoreRest();
         finish();
     }

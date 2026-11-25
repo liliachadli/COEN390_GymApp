@@ -1,8 +1,13 @@
 package com.example.smartgymtracker;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +21,8 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
 
@@ -32,6 +39,8 @@ public class WorkoutActivity extends BluetoothActivity {
     private LinearLayout exerciseList;
     private WorkoutRepository workoutRepository;
     private boolean savingWorkout = false;
+    private boolean listAnimated = false;
+    private static boolean askedNotifications = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +81,9 @@ public class WorkoutActivity extends BluetoothActivity {
                 Toast.makeText(this, "Workout is being saved", Toast.LENGTH_SHORT).show();
                 return;
             }
-            startActivity(new Intent(this, ChooseExerciseActivity.class));
+            if (!WorkoutUi.tooFast()) {
+                startActivity(new Intent(this, ChooseExerciseActivity.class));
+            }
         });
         workoutRepository = new WorkoutRepository();
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -93,6 +104,10 @@ public class WorkoutActivity extends BluetoothActivity {
     protected void onResume() {
         super.onResume();
         bleHelp.changeActivity(this, "WorkoutActivity");
+        if (WorkoutSession.active) {
+            askNotificationPermission();
+            WorkoutService.start(this);   // keeps tracking when the phone is locked
+        }
         WorkoutUi.showDeviceChips(findViewById(R.id.motion_chip), findViewById(R.id.heart_chip));
         showExercises();
     }
@@ -142,9 +157,16 @@ public class WorkoutActivity extends BluetoothActivity {
             card.setOnClickListener(v -> openExercise(index));
             exerciseList.addView(card);
         }
+        if (!listAnimated) {
+            Effects.cascade(exerciseList);
+            listAnimated = true;
+        }
     }
 
     private void openExercise(int index) {
+        if (WorkoutUi.tooFast()) {
+            return;
+        }
         if(savingWorkout) {
             Toast.makeText(this, "Workout is being saved", Toast.LENGTH_SHORT).show();
             return;
@@ -174,6 +196,7 @@ public class WorkoutActivity extends BluetoothActivity {
                     if (!name.isEmpty()) {
                         WorkoutSession.name = name;
                         nameText.setText(name);
+                        WorkoutStore.save();
                     }
                 })
                 .setNegativeButton("Cancel", null)
@@ -220,6 +243,7 @@ public class WorkoutActivity extends BluetoothActivity {
                         return;
                     }
                     WorkoutSession.reset();
+                    WorkoutService.stop(this);
                     finish();
                 })
                 .setNegativeButton("Keep going", null)
@@ -233,21 +257,49 @@ public class WorkoutActivity extends BluetoothActivity {
         }
         savingWorkout = true;
         PastWorkout workout = WorkoutHistory.saveCurrentWorkout();
+        boolean[] done = {false};   // the save ends only once (success, failure or no internet)
+
+        // No internet: Firestore keeps the workout on the phone and uploads it later,
+        // but it never says "success". After 8 s we continue like it was saved.
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(() -> {
+            if (!done[0]) {
+                done[0] = true;
+                Toast.makeText(WorkoutActivity.this, "No internet: the workout will upload when you are back online", Toast.LENGTH_LONG).show();
+                closeWorkout(workout);
+            }
+        }, 8000);
+
         workoutRepository.saveWorkout(workout, new WorkoutRepository.saveWorkoutCallback() {
 
             @Override
             public void onSuccess() {
-                WorkoutSession.reset();
-                openWorkoutSummary(workout);
+                if (done[0]) {
+                    return;
+                }
+                done[0] = true;
+                handler.removeCallbacksAndMessages(null);
+                closeWorkout(workout);
             }
             @Override
             public void onFailure(Exception e) {
+                if (done[0]) {
+                    return;
+                }
+                done[0] = true;
+                handler.removeCallbacksAndMessages(null);
                 Log.e("WorkoutActivity", "Failed to save workout", e);
                 Toast.makeText(WorkoutActivity.this, "Failed to save workout", Toast.LENGTH_LONG).show();
                 savingWorkout = false;
                 WorkoutHistory.workouts.remove(workout);
             }
         });
+    }
+
+    private void closeWorkout(PastWorkout workout) {
+        WorkoutSession.reset();
+        WorkoutService.stop(WorkoutActivity.this);
+        openWorkoutSummary(workout);
     }
 
     private void openWorkoutSummary(PastWorkout workout){
@@ -259,8 +311,19 @@ public class WorkoutActivity extends BluetoothActivity {
             return;
         }
         intent.putExtra(PastWorkoutActivity.EXTRA_WORKOUT_INDEX, index);
+        intent.putExtra(PastWorkoutActivity.EXTRA_CELEBRATE, true);
         startActivity(intent);
         finish();
+    }
+
+    // Android 13+: the "Workout in progress" notification needs permission (asked once)
+    private void askNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !askedNotifications
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            askedNotifications = true;
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 2);
+        }
     }
 
     @Override

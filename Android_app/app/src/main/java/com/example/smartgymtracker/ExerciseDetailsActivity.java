@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
@@ -62,6 +63,12 @@ public class ExerciseDetailsActivity extends BluetoothActivity {
         if (exercise != null) {
             showSets();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        WorkoutStore.save();   // weights typed on this page
     }
 
     private void showSets() {
@@ -154,8 +161,21 @@ public class ExerciseDetailsActivity extends BluetoothActivity {
     }
 
     private void startSet(SetEntry set, int setIndex) {
+        if (WorkoutUi.tooFast()) {
+            return;
+        }
         if (set.weight <= 0) {
             Toast.makeText(this, "Enter the weight first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!DeviceState.motionConnected) {
+            // Without the rep tracker the set screen would wait forever
+            new AlertDialog.Builder(this)
+                    .setTitle("Rep tracker not connected")
+                    .setMessage("Connect the rep tracker from the home page, or turn on manual mode to type your reps.")
+                    .setPositiveButton("Use manual mode", (dialog, which) -> manualSwitch.setChecked(true))
+                    .setNegativeButton("OK", null)
+                    .show();
             return;
         }
         if(DeviceState.heartConnected)
@@ -177,7 +197,7 @@ public class ExerciseDetailsActivity extends BluetoothActivity {
         set.reps = reps;
         set.done = true;
         WorkoutSession.stopRest();
-        WorkoutSession.startRest(set);
+        WorkoutSession.startRest(set);   // also saves the workout
         showSets();
     }
 
@@ -187,6 +207,7 @@ public class ExerciseDetailsActivity extends BluetoothActivity {
             weight = exercise.sets.get(exercise.sets.size() - 1).weight;
         }
         exercise.sets.add(new SetEntry(weight));
+        WorkoutStore.save();
         showSets();
     }
 
@@ -195,6 +216,7 @@ public class ExerciseDetailsActivity extends BluetoothActivity {
         for (int i = exercise.sets.size() - 1; i >= 0; i--) {
             if (!exercise.sets.get(i).done) {
                 exercise.sets.remove(i);
+                WorkoutStore.save();
                 showSets();
                 return;
             }

@@ -10,6 +10,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 // Template sheet: shows the exercises of a template and starts it
@@ -40,13 +42,30 @@ public class TemplateSheet {
                 Toast.makeText(activity, "Editing templates comes later", Toast.LENGTH_SHORT).show());
 
         view.findViewById(R.id.template_start).setOnClickListener(v -> {
-            WorkoutSession.start(template.name);
-            for (int i = 0; i < template.exercises.length; i++) {
-                WorkoutSession.addExercise(template.exercises[i], template.equipment[i], template.sets[i]);
+            if (WorkoutUi.tooFast()) {
+                return;
             }
-            sheet.dismiss();
-            activity.startActivity(new Intent(activity, WorkoutActivity.class));
+            if (WorkoutSession.active) {
+                // Don't erase the workout in progress without asking
+                new AlertDialog.Builder(activity)
+                        .setTitle("A workout is already running")
+                        .setMessage("Starting " + template.name + " will delete the current workout.")
+                        .setPositiveButton("Start new", (dialog, which) -> startTemplate(activity, template, sheet))
+                        .setNegativeButton("Keep current", null)
+                        .show();
+                return;
+            }
+            startTemplate(activity, template, sheet);
         });
         sheet.show();
+    }
+
+    private static void startTemplate(Activity activity, Template template, BottomSheetDialog sheet) {
+        WorkoutSession.start(template.name);
+        for (int i = 0; i < template.exercises.length; i++) {
+            WorkoutSession.addExercise(template.exercises[i], template.equipment[i], template.sets[i]);
+        }
+        sheet.dismiss();
+        activity.startActivity(new Intent(activity, WorkoutActivity.class));
     }
 }

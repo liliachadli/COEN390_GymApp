@@ -1,17 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Dark theme used by the workout setup screens -->
-    <style name="Theme.SmartGymTracker.Workout" parent="Theme.Material3.Dark.NoActionBar">
+    <!-- App theme: light or dark depending on the setting in Profile (colors in values/ and values-night/) -->
+    <style name="Theme.SmartGymTracker.Workout" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/gym_accent</item>
         <item name="colorOnPrimary">@color/gym_on_accent</item>
+        <item name="colorSurface">@color/gym_surface</item>
+        <item name="colorOnSurface">@color/gym_text</item>
         <item name="android:windowBackground">@color/gym_bg</item>
         <item name="android:statusBarColor">@color/gym_bg</item>
         <item name="android:navigationBarColor">@color/gym_bg</item>
+        <item name="android:windowLightStatusBar">@bool/gym_light_bars</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">@bool/gym_light_bars</item>
+        <item name="android:windowAnimationStyle">@style/Gym.PageAnimations</item>
+    </style>
+
+    <!-- Slide between pages -->
+    <style name="Gym.PageAnimations" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/page_open_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/page_open_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/page_close_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/page_close_exit</item>
     </style>
 
     <!-- Big lime button at the bottom of each screen -->
     <style name="Gym.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:stateListAnimator">@animator/press</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">60dp</item>
         <item name="android:textSize">17sp</item>
@@ -61,6 +75,7 @@
 
     <!-- Outlined button (Stop) -->
     <style name="Gym.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:stateListAnimator">@animator/press</item>
         <item name="android:layout_height">60dp</item>
         <item name="android:textSize">17sp</item>
         <item name="android:textStyle">bold</item>
@@ -117,6 +132,7 @@
 
     <!-- Small lime button (Select, Start, Finish) -->
     <style name="Gym.Button.Small" parent="Widget.Material3.Button">
+        <item name="android:stateListAnimator">@animator/press</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">44dp</item>
         <item name="android:minWidth">0dp</item>
@@ -133,6 +149,7 @@
 
     <!-- Small button with a grey border (Edit, Select on other exercises) -->
     <style name="Gym.Button.SmallOutline" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:stateListAnimator">@animator/press</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">44dp</item>
         <item name="android:minWidth">0dp</item>
@@ -155,6 +172,7 @@
 
     <!-- Dark grey full-width button (Done in sheets) -->
     <style name="Gym.Button.Grey" parent="Widget.Material3.Button">
+        <item name="android:stateListAnimator">@animator/press</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">56dp</item>
         <item name="android:textSize">16sp</item>
@@ -167,6 +185,7 @@
 
     <!-- Dashed "Add ..." button -->
     <style name="Gym.Button.Dashed">
+        <item name="android:stateListAnimator">@animator/press</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">56dp</item>
         <item name="android:background">@drawable/bg_dashed</item>
@@ -224,6 +243,7 @@
 
     <!-- M/F and lbs/kg buttons -->
     <style name="Gym.Button.Toggle" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:stateListAnimator">@animator/press</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">48dp</item>
         <item name="android:layout_weight">1</item>

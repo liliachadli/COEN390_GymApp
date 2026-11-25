@@ -24,6 +24,15 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Already logged in (app closed and opened again): skip the login page
+        FirebaseUser current = FirebaseAuth.getInstance().getCurrentUser();
+        if (current != null && current.isEmailVerified()) {
+            WorkoutStore.restore(current.getUid());
+            goToDashboard();
+            return;
+        }
+
         setContentView(R.layout.activity_login);
 
         // Connecting variables to the XML components
@@ -63,9 +72,12 @@ public class LoginActivity extends AppCompatActivity {
                     user.reload().addOnCompleteListener(reloadTask -> {
                         if(reloadTask.isSuccessful()){
                             if(user.isEmailVerified()){
-                                // Clear the workout history and session
+                                // Clear the workout history. Keep the workout in progress only if it is this user's
                                 WorkoutHistory.clearHistory();
-                                WorkoutSession.reset();
+                                if (!user.getUid().equals(WorkoutStore.savedUser())) {
+                                    WorkoutSession.reset();
+                                }
+                                WorkoutStore.restore(user.getUid());
 
                                 Toast.makeText(this, "Login successful", Toast.LENGTH_LONG).show();
                                 goToDashboard();

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Dark mode colors (light mode is in values/colors.xml) -->
+    <color name="gym_bg">#FF0E0F11</color>
+    <color name="gym_surface">#FF17191C</color>
+    <color name="gym_surface_high">#FF22252A</color>
+    <color name="gym_stroke">#FF2C3036</color>
+    <color name="gym_accent">#FFC8F04B</color>
+    <color name="gym_accent_deep">#FF7CCB2E</color>
+    <color name="gym_accent_soft">#24C8F04B</color>
+    <color name="gym_on_accent">#FF0E0F11</color>
+    <color name="gym_text">#FFF4F5F7</color>
+    <color name="gym_text_secondary">#FF9AA0A6</color>
+    <color name="gym_text_muted">#FF5F656D</color>
+    <!-- Extra colors: one per muscle group + its dark tile -->
+    <color name="gym_coral">#FFFF6B5A</color>
+    <color name="gym_coral_tint">#FF2E1714</color>
+    <color name="gym_cyan">#FF4CC9F0</color>
+    <color name="gym_cyan_tint">#FF0F2630</color>
+    <color name="gym_amber">#FFFFB547</color>
+    <color name="gym_amber_tint">#FF2E2410</color>
+    <color name="gym_violet">#FFA78BFA</color>
+    <color name="gym_violet_tint">#FF221B36</color>
+    <color name="gym_pink">#FFFF8FD0</color>
+    <color name="gym_pink_tint">#FF331A2A</color>
+    <color name="gym_accent_tint">#FF1C2A10</color>
+    <color name="gym_accent_stroke">#FF3D5419</color>
+    <color name="gym_danger_stroke">#FF3A2420</color>
+    <color name="gym_nav_bg">#FF121316</color>
+    <color name="gym_body">#FF3A3F46</color>
+    <color name="gym_scrim">#FF060708</color>
+    <!-- Grey body in the muscle drawings -->
+    <color name="gym_figure">#FF3A3F46</color>
+    <!-- Status bar icons: light on the dark theme -->
+    <bool name="gym_light_bars">false</bool>
+</resources>
