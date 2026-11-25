@@ -83,16 +83,6 @@
         android:text="Connect one sensor or both. With no sensor you can still log your sets by typing the reps."
         android:textSize="13sp" />
 
-    <TextView
-        android:id="@+id/raw_data_link"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:gravity="center_vertical"
-        android:text="Open raw sensor data (test screen)"
-        android:textColor="@color/gym_cyan"
-        android:textSize="14sp"
-        android:textStyle="bold" />
-
     <com.google.android.material.button.MaterialButton
         android:id="@+id/sheet_done"
         style="@style/Gym.Button.Grey"

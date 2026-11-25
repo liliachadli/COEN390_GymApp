@@ -17,6 +17,7 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -38,10 +39,12 @@ import java.util.UUID;
 
 public class BluetoothHelper {
     private static BluetoothHelper bleHelp = null;
-    private final BluetoothAdapter bluetoothAdapter;
+    public final BluetoothAdapter bluetoothAdapter;
     private final ScanSettings scanSettings;
     private BluetoothLeScanner scanner;
     private final boolean[] scanning = new boolean[2];
+    public boolean[] shouldBeConnected = new boolean[2];
+    private boolean[] isConnected = new boolean[2];
     private final Context appContext;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private WeakReference<BluetoothActivity> activityRef;
@@ -83,6 +86,11 @@ public class BluetoothHelper {
         scanner = (bluetoothAdapter != null) ? bluetoothAdapter.getBluetoothLeScanner() : null;
         scanning[0] = false;
         scanning[1] = false;
+
+        isConnected[0] = false;
+        isConnected[1] = false;
+        shouldBeConnected[0] = false;
+        shouldBeConnected[1] = false;
 
         scanSettings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
@@ -149,10 +157,13 @@ public class BluetoothHelper {
                         }
                         sendStatus("Connected to Heart Rate Tracker");
                         sendConnection(0,true);
+                        shouldBeConnected[0] = true;
+                        isConnected[0] = true;
                         gatt.discoverServices();
 
                     } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                         gatt.close();
+                        isConnected[0] = false;
                         btGatts[0] = null;
                         sendConnection(0,false);
                         sendStatus("Heart Rate Tracker disconnected");
@@ -161,6 +172,7 @@ public class BluetoothHelper {
                     // status 133 etc. is common on the first try: close and scan again
                     Log.e("BluetoothHelper", "Error connecting to the HR board, status " + status);
                     gatt.close();
+                    isConnected[0] = false;
                     btGatts[0] = null;
                     sendConnection(0,false);
                     sendStatus("Heart Rate Tracker has been disconnected. Trying to reconnect...");
@@ -224,6 +236,8 @@ public class BluetoothHelper {
                         }
                         sendStatus("Connected to Rep Tracker");
                         sendConnection(1,true);
+                        shouldBeConnected[1] = true;
+                        isConnected[1] = true;
                         // 22-byte rep packet; the bigger MTU is kept for future packet types. Services are discovered in onMtuChanged
                         if (!gatt.requestMtu(64)) {
                             gatt.discoverServices();
@@ -232,6 +246,7 @@ public class BluetoothHelper {
                         gatt.close();
                         btGatts[1] = null;
                         sendConnection(1,false);
+                        isConnected[1] = false;
                         sendStatus("Rep Tracker disconnected");
                     }
                 } else {
@@ -239,6 +254,7 @@ public class BluetoothHelper {
                     Log.e("BluetoothHelper", "Error connecting to the rep tracker board, status " + status);
                     gatt.close();
                     btGatts[1] = null;
+                    isConnected[1] = false;
                     sendConnection(1,false);
                     sendStatus("Rep Tracker has been disconnected. Trying to reconnect...");
                     handler.postDelayed(() -> connectToESP32(1), 1000);
@@ -406,6 +422,7 @@ public class BluetoothHelper {
     // Stop scanning and drop the connection (call from MainActivity.onDestroy)
     public void disconnect(int deviceNum) { // deviceNum 0 for hr, 1 for repcount
         handler.removeCallbacksAndMessages(service_UUIDs[deviceNum]);
+        shouldBeConnected[deviceNum] = false;
         if (!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)
                 || !hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
             return;
@@ -499,6 +516,10 @@ public class BluetoothHelper {
                 }
             });
         }
+    }
+
+    public boolean isConnected(int deviceNum){
+        return btGatts[deviceNum] != null && isConnected[deviceNum];
     }
 
     public void turnOnNotifications(int deviceNum){
