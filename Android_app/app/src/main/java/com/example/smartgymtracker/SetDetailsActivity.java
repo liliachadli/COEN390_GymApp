@@ -56,6 +56,7 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
     private ObjectAnimator finishAnimator;
     private final Handler beatHandler = new Handler(Looper.getMainLooper());
     private int beatBpm = 0;
+    private int motionConn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +67,7 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
 
         int exerciseIndex = getIntent().getIntExtra(WorkoutActivity.EXTRA_EXERCISE_INDEX, 0);
         int setIndex = getIntent().getIntExtra(WorkoutActivity.EXTRA_SET_INDEX, 0);
+        motionConn = getIntent().getIntExtra("ConnectedMotion", 0);
         // The workout can be gone (app restarted, workout cancelled): leave instead of crashing
         if (exerciseIndex < 0 || exerciseIndex >= WorkoutSession.exercises.size()
                 || setIndex < 0 || setIndex >= WorkoutSession.exercises.get(exerciseIndex).sets.size()) {
@@ -101,6 +103,20 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
         });
 
         showState(SET_WAITING);
+
+        if(motionConn == 0){
+            repScroll.setVisibility(View.GONE);
+            LinearLayout repsBox = findViewById(R.id.reps_box);
+            LinearLayout tutBox = findViewById(R.id.tut_box);
+            LinearLayout romBox = findViewById(R.id.rom_box);
+            repsBox.setVisibility(View.GONE);
+            tutBox.setVisibility(View.GONE);
+            romBox.setVisibility(View.GONE);
+            finishHint.setVisibility(View.GONE);
+            showState(SET_HR);
+            finishButton.setEnabled(true);
+            WorkoutSession.stopRest();
+        }
     }
 
     @Override
@@ -232,6 +248,9 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             case SET_CANCELLED:
                 setChip("● CANCELLED", R.color.gym_coral, R.color.gym_coral_tint);
                 break;
+            case SET_HR:
+                setChip("● MANUAL REPS", R.color.gym_amber, R.color.gym_amber_tint);
+                break;
             default:
                 setChip("● WAITING", R.color.gym_text_secondary, R.color.gym_surface_high);
         }
@@ -254,15 +273,20 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
     }
 
     private void finishSet() {
-        if (reps.isEmpty()) {
+        if (reps.isEmpty() && motionConn == 1) {
             return;
         }
-        set.repList = new ArrayList<>(reps);
+        if(motionConn == 1) {
+            set.repList = new ArrayList<>(reps);
+            set.reps = reps.size();
+            if (!recoveryBPM.isEmpty())
+                WorkoutSession.recoveryBPMs.addAll(recoveryBPM);
+        } else if(motionConn == 0) {
+            WorkoutSession.startRest(set);
+        }
+
         set.bpmList = new ArrayList<>(bpms);
-        set.reps = reps.size();
         set.done = true;
-        if(!recoveryBPM.isEmpty())
-            WorkoutSession.recoveryBPMs.addAll(recoveryBPM);
         finish();
     }
 

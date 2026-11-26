@@ -32,7 +32,22 @@ public class BluetoothActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         bleHelp = BluetoothHelper.getInstance(getApplicationContext(), this, "BluetoothActivity");
+        if(!bleHelp.isBluetoothEnabled()){
+            showConnection(0,false);
+            showConnection(1,false);
+            Toast.makeText(this, "Please turn on bluetooth to use the trackers.", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            if(!bleHelp.isConnected(0) && bleHelp.shouldBeConnected[0]) {
+                bleHelp.connectToESP32(0);
+                showConnection(0, true);
+            }
 
+            if(!bleHelp.isConnected(1) && bleHelp.shouldBeConnected[1]) {
+                bleHelp.connectToESP32(1);
+                showConnection(1, true);
+            }
+        }
         mReceiver = new BroadcastReceiver() {
 
             @Override

@@ -30,7 +30,7 @@ public class ExerciseEntry {
     // Index of the first set that is not done yet (-1 if all are done)
     public int getCurrentSetIndex() {
         for (int i = 0; i < sets.size(); i++) {
-            if (!sets.get(i).done) {
+            if (!sets.get(i).done || sets.get(i).reps <= 0) {
                 return i;
             }
         }
