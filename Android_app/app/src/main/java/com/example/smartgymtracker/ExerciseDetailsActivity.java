@@ -103,7 +103,7 @@ public class ExerciseDetailsActivity extends BluetoothActivity {
                 }
             });
 
-            if (set.done) {
+            if (set.done && set.reps > 0) {
                 // Finished set: lime row, "Done"
                 row.setBackgroundResource(R.drawable.bg_set_done);
                 number.setTextColor(WorkoutUi.color(this, R.color.gym_accent));
@@ -112,6 +112,10 @@ public class ExerciseDetailsActivity extends BluetoothActivity {
                 action.setText("Done");
                 action.setIconResource(R.drawable.ic_check);
                 action.setClickable(false);
+            } else if(set.done){
+                action.setText("Complete");
+                action.setIconResource(R.drawable.ic_check);
+                action.setOnClickListener(v -> completeByHand(set, reps));
             } else if (i == current) {
                 // The next set to do
                 reps.setEnabled(manualSwitch.isChecked());
@@ -168,15 +172,21 @@ public class ExerciseDetailsActivity extends BluetoothActivity {
             Toast.makeText(this, "Enter the weight first", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (!DeviceState.motionConnected) {
+
+        if(!DeviceState.heartConnected && !DeviceState.motionConnected) {
             // Without the rep tracker the set screen would wait forever
             new AlertDialog.Builder(this)
-                    .setTitle("Rep tracker not connected")
-                    .setMessage("Connect the rep tracker from the home page, or turn on manual mode to type your reps.")
+                    .setTitle("No Tracker Connected")
+                    .setMessage("Connect the rep tracker or heart rate tracker from the home page, or turn on manual mode to type your reps.")
                     .setPositiveButton("Use manual mode", (dialog, which) -> manualSwitch.setChecked(true))
                     .setNegativeButton("OK", null)
                     .show();
             return;
+        }
+
+        int motionConn = 1;
+        if (!DeviceState.motionConnected) {
+            motionConn = 0;
         }
         if(DeviceState.heartConnected)
             bleHelp.turnOnNotifications(0);
@@ -185,6 +195,7 @@ public class ExerciseDetailsActivity extends BluetoothActivity {
         Intent intent = new Intent(this, SetDetailsActivity.class);
         intent.putExtra(WorkoutActivity.EXTRA_EXERCISE_INDEX, exerciseIndex);
         intent.putExtra(WorkoutActivity.EXTRA_SET_INDEX, setIndex);
+        intent.putExtra("ConnectedMotion", motionConn);
         startActivity(intent);
     }
 
@@ -195,9 +206,11 @@ public class ExerciseDetailsActivity extends BluetoothActivity {
             return;
         }
         set.reps = reps;
-        set.done = true;
-        WorkoutSession.stopRest();
-        WorkoutSession.startRest(set);   // also saves the workout
+        if(!set.done) {
+            set.done = true;
+            WorkoutSession.stopRest();
+            WorkoutSession.startRest(set);   // also saves the workout
+        }
         showSets();
     }
 
