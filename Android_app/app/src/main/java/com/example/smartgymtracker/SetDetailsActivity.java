@@ -93,6 +93,7 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
         finishButton = findViewById(R.id.finish_button);
         heartIcon = findViewById(R.id.heart_icon);
 
+        finishButton.setEnabled(true);
         findViewById(R.id.cancel_button).setOnClickListener(v -> cancelSet());
         finishButton.setOnClickListener(v -> finishSet());
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -114,7 +115,6 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             romBox.setVisibility(View.GONE);
             finishHint.setVisibility(View.GONE);
             showState(SET_HR);
-            finishButton.setEnabled(true);
             WorkoutSession.stopRest();
         }
     }
@@ -153,11 +153,9 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             restStopped = true;
         } else if (state==SET_MOVING){
             finishHint.setText("");
-            finishButton.setEnabled(false);
         } else if (state == SET_DONE) {
             recoveryBPM.clear();
             WorkoutSession.startRest(set);
-            finishButton.setEnabled(true);
             Effects.stop(finishAnimator, finishButton);
             finishAnimator = Effects.breathe(finishButton, 1.06f);   // "tap me"
             Effects.tick(finishButton);
@@ -170,7 +168,6 @@ public class SetDetailsActivity extends BluetoothActivity implements SensorListe
             finishHint.setText("Not a real set. Start moving again when you are ready.");
         } else if (state == SET_WAITING) {
             finishHint.setText("");
-            finishButton.setEnabled(false);
         }
     }
 
